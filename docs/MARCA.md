@@ -1,194 +1,194 @@
-# Beatwise – Guía de marca y UI
+# BeatWise – Brand and UI Guide
 
-Contexto de marca y decisiones de diseño para el desarrollo de la interfaz.
+Brand context and design decisions for interface development.
 
 ---
 
-## Identidad
+## Identity
 
-| Elemento | Valor |
+| Element | Value |
 |----------|-------|
-| **Nombre** | BeatWise |
+| **Name** | BeatWise |
 | **Tagline** | *Know your beats, prep your sets* |
 
 ---
 
-## Paleta de color
+## Color Palette
 
-| Uso | Color | Hex | Uso en UI |
+| Use | Color | Hex | UI Usage |
 |-----|-------|-----|-----------|
-| **Fondo principal** | Negro profundo | `#1C1C1C` | Body, fondos de pantalla, cards |
-| **Botones / acentos** | Naranja eléctrico | `#FF6F00` | CTAs, links primarios, elementos interactivos |
-| **Destacados / hover / iconos** | Amarillo cálido | `#FFD600` | Hover sobre botones, iconos activos, highlights |
-| **Texto principal** | Blanco | `#FFFFFF` | Títulos, texto importante |
-| **Texto secundario** | Gris claro | `#E0E0E0` | Descripciones, subtítulos, labels |
+| **Main background** | Deep black | `#1C1C1C` | Body, screen backgrounds, cards |
+| **Buttons / accents** | Electric orange | `#FF6F00` | CTAs, primary links, interactive elements |
+| **Highlights / hover / icons** | Warm yellow | `#FFD600` | Button hover, active icons, highlights |
+| **Primary text** | White | `#FFFFFF` | Titles, important text |
+| **Secondary text** | Light gray | `#E0E0E0` | Descriptions, subtitles, labels |
 
-### Colores de estados
+### State Colors
 
-| Estado | Hex | Uso |
+| State | Hex | Usage |
 |--------|-----|-----|
-| **Éxito** | `#4CAF50` | Feedback positivo (ej. "Procesado"), legible sobre negro/blanco |
-| **Error** | `#E53935` | Alertas, validación fallida |
-| **Warning** | `#FFB300` | Avisos (ej. "Fakin' the Funk"), complementa la paleta naranja |
-| **Info** | `#2196F3` | Opcional: hints, notificaciones |
-| **Botón deshabilitado** | `#6B6B6B` | Gris medio, no usar naranja apagado |
+| **Success** | `#4CAF50` | Positive feedback (e.g. "Processed"), readable on black/white |
+| **Error** | `#E53935` | Alerts, failed validation |
+| **Warning** | `#FFB300` | Warnings (e.g. "Fakin' the Funk"), complements orange palette |
+| **Info** | `#2196F3` | Optional: hints, notifications |
+| **Disabled button** | `#6B6B6B` | Medium gray, don't use muted orange |
 
 ---
 
-## Tipografía
+## Typography
 
-| Uso | Fuente | Estilo |
+| Use | Font | Style |
 |-----|--------|--------|
-| **Títulos** | Bebas Neue | Condensada, bold, carácter musical |
-| **Texto secundario / cuerpo** | Roboto | Legible, limpia, moderna |
+| **Titles** | Bebas Neue | Condensed, bold, musical character |
+| **Secondary text / body** | Roboto | Readable, clean, modern |
 
-*Look*: moderno y musical. Bebas Neue aporta impacto en headlines; Roboto mantiene la lectura cómoda en cuerpo de texto.
+*Look*: modern and musical. Bebas Neue brings impact to headlines; Roboto keeps body text comfortable to read.
 
 ---
 
-## Espaciado y escala
+## Spacing and Scale
 
-**Unidad base**: 8px (unidad modular).
+**Base unit**: 8px (modular unit).
 
-**Escala**: 8, 16, 24, 32, 48, 64 (padding, márgenes y tipografía).
+**Scale**: 8, 16, 24, 32, 48, 64 (padding, margins and typography).
 
-| Ejemplo | Valor |
+| Example | Value |
 |---------|-------|
-| Margen entre cards | 16px |
-| Padding de botones | 12px vertical × 24px horizontal |
-| Line-height body | 1.5 |
+| Margin between cards | 16px |
+| Button padding | 12px vertical × 24px horizontal |
+| Body line-height | 1.5 |
 
 ---
 
-## Border radius
+## Border Radius
 
-| Componente | Radius |
+| Component | Radius |
 |------------|--------|
-| Mayoría (botones, inputs) | 8px |
-| Cards / modales | 12px |
-| Botones secundarios | 6px |
+| Most (buttons, inputs) | 8px |
+| Cards / modals | 12px |
+| Secondary buttons | 6px |
 
 ---
 
-## Sombras
+## Shadows
 
-Sí, sutiles. Dan profundidad sin quitar modernidad.
+Yes, subtle. They add depth without removing modernity.
 
-| Uso | Valor |
+| Use | Value |
 |-----|-------|
 | Card | `0 4px 12px rgba(0,0,0,0.15)` |
-| Botón hover | `0 6px 20px rgba(255,111,0,0.25)` |
+| Button hover | `0 6px 20px rgba(255,111,0,0.25)` |
 
 ---
 
-## Iconografía
+## Iconography
 
-- **Estilo**: Lineal y moderno, consistente con web musical
-- **Librerías**: Lucide (prioritaria) o Feather Icons – ambas limpias y flexibles
-- **Extra**: Iconos animables para estados (hover, click)
+- **Style**: Linear and modern, consistent with musical web
+- **Libraries**: Lucide (priority) or Feather Icons – both clean and flexible
+- **Extra**: Animatable icons for states (hover, click)
 
 ---
 
-## Componentes clave
+## Key Components
 
-| Componente | Color base | Hover | Estado deshabilitado |
+| Component | Base color | Hover | Disabled state |
 |------------|------------|-------|----------------------|
-| Botón primario | `#FF6F00` | `#FFD600` o naranja claro | `#6B6B6B` |
-| Botón secundario | Borde gris / transparente | Fondo gris suave | Opacidad reducida |
-| Input / campo | Borde `#E0E0E0` o `#6B6B6B` | Borde `#FF6F00` en focus | - |
+| Primary button | `#FF6F00` | `#FFD600` or light orange | `#6B6B6B` |
+| Secondary button | Gray border / transparent | Soft gray background | Reduced opacity |
+| Input / field | Border `#E0E0E0` or `#6B6B6B` | Border `#FF6F00` on focus | - |
 | Link | `#FF6F00` | `#FFD600` | - |
-| Icono | `#E0E0E0` | `#FFD600` | `#6B6B6B` |
+| Icon | `#E0E0E0` | `#FFD600` | `#6B6B6B` |
 
 ---
 
-## Animaciones y transiciones
+## Animations and Transitions
 
-- **Duración**: 200–300ms para hover / feedback
-- **Easing**: `ease-in-out` en interacciones
+- **Duration**: 200–300ms for hover / feedback
+- **Easing**: `ease-in-out` on interactions
 
-| Elemento | Animación |
+| Element | Animation |
 |----------|-----------|
-| Hover botón | Escala ligera 1.05x + cambio de color |
-| Hover card | Sombra + translateY 2px |
-| Carga / fade-in | opacity 0 → 1, 400ms |
+| Button hover | Light scale 1.05x + color change |
+| Card hover | Shadow + translateY 2px |
+| Load / fade-in | opacity 0 → 1, 400ms |
 
 ---
 
 ## Logo
 
-**Concepto**: Tipográfico con personalidad traviesa.
+**Concept**: Typographic with playful personality.
 
-- "BeatWise" en Bebas Neue
-- Ligero tilt en W y B
-- Wave o símbolo de beat en la I
+- "BeatWise" in Bebas Neue
+- Light tilt on W and B
+- Wave or beat symbol on the I
 
-**Variantes**:
-- **Horizontal**: header web / app
-- **Vertical / cuadrado**: icono de app, footer
-- **Monocromo** (blanco / negro): imprimir, merchandising
+**Variants**:
+- **Horizontal**: web / app header
+- **Vertical / square**: app icon, footer
+- **Monochrome** (white / black): print, merchandise
 
 ---
 
 ## Favicon
 
-- Variante simple del logo: BW con wave en la I o icono abstracto de beat
-- **Tamaños**: 32×32 px y 16×16 px
-- **Colores**: fondo negro / naranja para legibilidad
+- Simple logo variant: BW with wave on I or abstract beat icon
+- **Sizes**: 32×32 px and 16×16 px
+- **Colors**: black / orange background for readability
 
 ---
 
-## Accesibilidad
+## Accessibility
 
-- **Contraste**: Verificar que `#E0E0E0` y `#FFFFFF` sobre `#1C1C1C` cumplan WCAG AA (mínimo 4.5:1 para texto normal).
-- **Focus visible**: Outline naranja o amarillo en elementos interactivos.
-- **Texto en botones**: Blanco sobre naranja (`#FF6F00`) – revisar contraste.
-
----
-
-## Checklist de decisiones
-
-- [x] Tipografía: Bebas Neue (títulos) + Roboto (cuerpo)
-- [x] Espaciado base (8px) y escala (8, 16, 24, 32, 48, 64)
-- [x] Border radius (8px estándar, 12px cards, 6px secundarios)
-- [x] Sombras sutiles (cards, botón hover)
-- [x] Iconos: Lucide / Feather, lineal y moderno
-- [x] Colores de estados (éxito, error, warning, info)
-- [x] Animaciones: 200–300ms, ease-in-out
-- [x] Logo: concepto tipográfico, variantes
-- [x] Favicon: BW + wave, 32×32 y 16×16
+- **Contrast**: Verify that `#E0E0E0` and `#FFFFFF` on `#1C1C1C` meet WCAG AA (minimum 4.5:1 for normal text).
+- **Visible focus**: Orange or yellow outline on interactive elements.
+- **Button text**: White on orange (`#FF6F00`) – check contrast.
 
 ---
 
-## Resumen para CSS / Tailwind
+## Decision Checklist
+
+- [x] Typography: Bebas Neue (titles) + Roboto (body)
+- [x] Base spacing (8px) and scale (8, 16, 24, 32, 48, 64)
+- [x] Border radius (8px standard, 12px cards, 6px secondary)
+- [x] Subtle shadows (cards, button hover)
+- [x] Icons: Lucide / Feather, linear and modern
+- [x] State colors (success, error, warning, info)
+- [x] Animations: 200–300ms, ease-in-out
+- [x] Logo: typographic concept, variants
+- [x] Favicon: BW + wave, 32×32 and 16×16
+
+---
+
+## Summary for CSS / Tailwind
 
 ```css
-/* Variables de referencia */
+/* Reference variables */
 --beatwise-bg: #1C1C1C;
 --beatwise-primary: #FF6F00;
 --beatwise-accent: #FFD600;
 --beatwise-text: #FFFFFF;
 --beatwise-text-muted: #E0E0E0;
 
-/* Estados */
+/* States */
 --beatwise-success: #4CAF50;
 --beatwise-error: #E53935;
 --beatwise-warning: #FFB300;
 --beatwise-info: #2196F3;
 
-/* Tipografía */
+/* Typography */
 --beatwise-font-title: 'Bebas Neue', sans-serif;
 --beatwise-font-body: 'Roboto', sans-serif;
 
-/* Espaciado (base 8px) */
+/* Spacing (base 8px) */
 --beatwise-space: 8px;
 --beatwise-radius: 8px;
 --beatwise-radius-card: 12px;
 --beatwise-radius-sm: 6px;
 
-/* Sombras */
+/* Shadows */
 --beatwise-shadow-card: 0 4px 12px rgba(0,0,0,0.15);
 --beatwise-shadow-button-hover: 0 6px 20px rgba(255,111,0,0.25);
 
-/* Transiciones */
+/* Transitions */
 --beatwise-transition: 200ms ease-in-out;
 ```

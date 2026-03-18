@@ -1,104 +1,104 @@
-# Arquitectura – Fase 1 (MVP con usuarios)
+# Architecture – Phase 1 (MVP with Users)
 
-Web app con auth, tracking y organización de carpetas. Pipeline completo para Rekordbox/VirtualDJ.
-
----
-
-## Objetivo
-
-Producto con usuarios identificados y funcionalidad completa del pipeline web: subir, validar, normalizar, etiquetar, organizar y descargar librería lista para software DJ.
-
-**Funcionalidades**: 1, 2, 3, 4 y 5 (añade Organización).
+Web app with auth, tracking and folder organization. Complete pipeline for Rekordbox/VirtualDJ.
 
 ---
 
-## Diagrama de componentes
+## Objective
+
+Product with identified users and complete web pipeline functionality: upload, validate, normalize, tag, organize and download library ready for DJ software.
+
+**Features**: 1, 2, 3, 4 and 5 (adds Organization).
+
+---
+
+## Component Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        FRONTEND (Web App)                        │
-│  • Auth (login/registro)                                         │
-│  • Drag & drop subida carpetas/archivos                          │
-│  • Vista de progreso (validación, etiquetado, organización)      │
-│  • Previsualización de tags y alertas de calidad                 │
-│  • Descarga de librería organizada (ZIP)                         │
+│  • Auth (login/registration)                                     │
+│  • Drag & drop upload folders/files                              │
+│  • Progress view (validation, tagging, organization)             │
+│  • Tag preview and quality alerts                                │
+│  • Download organized library (ZIP)                              │
 └───────────────────────────┬─────────────────────────────────────┘
-                            │ HTTP / WebSocket (progreso)
+                            │ HTTP / WebSocket (progress)
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                        BACKEND (API Server)                      │
 │                                                                  │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
-│  │ Upload       │  │ Validación   │  │ Normalización        │   │
-│  │ Handler      │→ │ de Calidad   │→ │ de Volumen           │   │
+│  │ Upload       │  │ Quality      │  │ Volume               │   │
+│  │ Handler      │→ │ Validation   │→ │ Normalization        │   │
 │  └──────────────┘  └──────────────┘  └──────────┬───────────┘   │
 │                                                  │               │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────▼───────────┐   │
-│  │ Export       │  │ Organización │  │ Etiquetado           │   │
-│  │ (ZIP)        │← │ (carpetas)   │← │ (LLM + metadata)     │   │
+│  │ Export       │  │ Organization │  │ Tagging              │   │
+│  │ (ZIP)        │← │ (folders)    │← │ (LLM + metadata)     │   │
 │  └──────────────┘  └──────────────┘  └──────────────────────┘   │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     SERVICIOS EXTERNOS / PERSISTENCIA            │
-│  • LLM API (OpenAI / Anthropic) – tags faltantes                │
-│  • Disco local (temp) – archivos durante proc., borrar tras uso  │
-│  • DB (SQLite/Postgres) – usuarios, sesiones, analytics         │
+│                 EXTERNAL SERVICES / PERSISTENCE                  │
+│  • LLM API (OpenAI / Anthropic) – missing tags                  │
+│  • Local disk (temp) – files during proc., delete after use     │
+│  • DB (SQLite/Postgres) – users, sessions, analytics            │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Nota**: La DB guarda usuarios y métricas de uso, **nunca** archivos de audio.
+**Note**: DB stores users and usage metrics, **never** audio files.
 
 ---
 
-## Flujo de datos
+## Data Flow
 
 ```
-1. Usuario autenticado sube archivos
+1. Authenticated user uploads files
        ↓
-2. Backend escribe en temp, asocia session_id al user_id
+2. Backend writes to temp, associates session_id to user_id
        ↓
-3. Validación de calidad
+3. Quality validation
        ↓
-4. Normalización de volumen
+4. Volume normalization
        ↓
-5. Etiquetado (ID3 + LLM)
+5. Tagging (ID3 + LLM)
        ↓
-6. Organización: crear estructura género > subgénero > intensidad
+6. Organization: create structure genre > subgenre > intensity
        ↓
-7. Generar playlists (M3U) por carpeta
+7. Generate playlists (M3U) per folder
        ↓
-8. Empaquetar en ZIP, servir descarga
+8. Package in ZIP, serve download
        ↓
-9. Registrar analytics (archivos procesados, tiempo, etc.)
+9. Record analytics (processed files, time, etc.)
        ↓
-10. Borrar carpeta temporal
+10. Delete temp folder
 ```
 
 ---
 
-## Almacenamiento
+## Storage
 
-| Aspecto | Decisión |
+| Aspect | Decision |
 |---------|----------|
-| **Archivos de audio** | Temp, borrar tras procesar. No persistir. |
-| **Auth** | Sí. JWT o sesiones. |
-| **Base de datos** | Usuarios, sesiones de procesamiento, analytics (counts, timestamps). |
-| **Cloud (S3)** | Opcional. No necesario para MVP. |
+| **Audio files** | Temp, delete after processing. Do not persist. |
+| **Auth** | Yes. JWT or sessions. |
+| **Database** | Users, processing sessions, analytics (counts, timestamps). |
+| **Cloud (S3)** | Optional. Not necessary for MVP. |
 
-**Modelo de datos (sugerido)**:
+**Suggested data model**:
 
 - `users`: id, email, created_at
 - `sessions`: id, user_id, started_at, status, files_count, completed_at
-- `analytics`: user_id, event_type, metadata (agregados para dashboards)
+- `analytics`: user_id, event_type, metadata (aggregates for dashboards)
 
 ---
 
-## Estructura de carpetas (export)
+## Folder Structure (export)
 
 ```
-libreria-organizada/
+organized-library/
 ├── Electronic/
 │   ├── House/
 │   │   ├── Low/
@@ -116,46 +116,46 @@ libreria-organizada/
     └── ...
 ```
 
-Organización basada en tags: género → subgénero → intensidad.
+Organization based on tags: genre → subgenre → intensity.
 
 ---
 
-## Flujo de datos detallado por paso
+## Detailed Data Flow by Step
 
-### Subida
-- Validar extensión, MIME type, archivo readable
-- Rechazar o marcar corruptos
+### Upload
+- Validate extension, MIME type, readable file
+- Reject or mark corrupted files
 
-### Validación de calidad
-- Bitrate real vs declarado (Fakin' the Funk)
-- Análisis espectral (artefactos)
-- Nivel peak (clipping)
+### Quality Validation
+- Real vs declared bitrate (Fakin' the Funk)
+- Spectral analysis (artifacts)
+- Peak level (clipping)
 - RMS
 
-### Normalización
-- Target RMS (ej. -14 dB LUFS)
-- Gain por pista, limitar si degradaría calidad
+### Normalization
+- Target RMS (e.g. -14 dB LUFS)
+- Gain per track, limit if would degrade quality
 
-### Etiquetado
-- Leer ID3/Vorbis existentes
-- LLM para: artista, título, género, BPM, key, intensidad, mood
+### Tagging
+- Read existing ID3/Vorbis
+- LLM for: artist, title, genre, BPM, key, intensity, mood
 
-### Organización
-- Crear carpetas según reglas
-- Copiar archivos a rutas
-- Generar playlists M3U
+### Organization
+- Create folders according to rules
+- Copy files to paths
+- Generate M3U playlists
 
 ---
 
-## Seguridad y rendimiento
+## Security and Performance
 
-### Seguridad
-- Auth obligatoria
-- Límites por usuario (cuota de uso si aplica)
-- Sanitización de rutas y nombres
-- Rate limiting por IP / usuario
+### Security
+- Auth required
+- Per-user limits (usage quota if applicable)
+- Path and name sanitization
+- Rate limiting per IP / user
 
-### Rendimiento
-- Procesamiento async con cola (Redis, Bull, etc.)
-- WebSocket o polling para progreso
-- Cache de resultados LLM por hash de archivo (opcional)
+### Performance
+- Async processing with queue (Redis, Bull, etc.)
+- WebSocket or polling for progress
+- Cache LLM results by file hash (optional)

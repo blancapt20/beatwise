@@ -11,13 +11,36 @@ Respeta esta estructura al crear o mover archivos:
 beatwise/
 ├── .github/workflows/        # CI/CD (ci.yml)
 ├── docs/
-├── frontend/                 # Vite + React
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── api/
-│   │   ├── hooks/
-│   │   └── styles/
+├── frontend/                 # Next.js 15 + React 19 + TypeScript
+│   ├── app/                  # Next.js App Router
+│   │   ├── (marketing)/      # Route group - public pages
+│   │   ├── (dashboard)/      # Route group - authenticated app
+│   │   ├── api/              # API routes
+│   │   ├── layout.tsx        # Root layout
+│   │   ├── page.tsx          # Home page
+│   │   └── globals.css       # Global styles
+│   ├── features/             # Feature modules (NEW - modular architecture)
+│   │   ├── landing/          # Landing page feature
+│   │   │   ├── components/   # Feature-specific components
+│   │   │   ├── hooks/        # Feature-specific hooks
+│   │   │   ├── services/     # Feature-specific services
+│   │   │   ├── types.ts      # Feature-specific types
+│   │   │   └── index.ts      # Barrel export
+│   │   ├── auth/             # Authentication feature
+│   │   ├── upload/           # Upload feature (Fase 0)
+│   │   ├── library/          # Music library feature (Fase 1)
+│   │   └── processing/       # Audio processing feature
+│   ├── components/           # Shared/reusable components only
+│   │   ├── ui/               # Base UI components (Button, Input, Modal)
+│   │   ├── layout/           # Layout components (Header, Footer, Sidebar)
+│   │   └── feedback/         # Feedback components (Toast, Loading)
+│   ├── lib/                  # Shared utilities
+│   │   ├── api/              # API client
+│   │   ├── utils/            # Utility functions
+│   │   └── constants.ts      # App constants
+│   ├── hooks/                # Shared hooks
+│   ├── types/                # Shared TypeScript types
+│   ├── public/               # Static assets
 │   └── package.json
 ├── backend/                  # FastAPI + Python
 │   ├── app/
@@ -32,8 +55,48 @@ beatwise/
 └── README.md
 ```
 
-**Frontend**: componentes en `components/`, páginas en `pages/`, llamadas API en `api/`, estilos en `styles/`.
+## Principios de Organización
 
-**Backend**: rutas en `app/api/`, lógica en `app/services/`, orquestación del pipeline en `app/pipeline/`. Tests en `tests/`.
+### Frontend (Feature-Based Architecture)
 
-No crear archivos en la raíz que pertenezcan a frontend o backend. Mantener monorepo: `frontend/` y `backend/` separados.
+**Features (`features/`)**: Módulos de funcionalidad autocontenidos
+- Cada feature tiene su propia carpeta con `components/`, `hooks/`, `services/`, `types.ts`
+- Usar `index.ts` para barrel exports limpios
+- Feature-specific code queda dentro de su feature
+- Ejemplos: `landing/`, `auth/`, `upload/`, `library/`, `processing/`
+
+**Components (`components/`)**: Solo componentes compartidos/reutilizables
+- `ui/`: Componentes base (Button, Input, Card, Modal, Badge)
+- `layout/`: Componentes de layout (Header, Footer, Sidebar, Navigation)
+- `feedback/`: Componentes de feedback (Toast, LoadingSpinner, ErrorBoundary)
+- NO poner componentes específicos de features aquí
+
+**Lib (`lib/`)**: Utilidades y servicios compartidos
+- `api/`: Cliente API y configuración
+- `utils/`: Funciones de utilidad
+- `constants.ts`: Constantes globales
+
+**Imports limpios con barrel exports**:
+```typescript
+// ✅ Correcto
+import { Hero, ProblemSection } from "@/features/landing";
+import { Button, Input } from "@/components/ui";
+
+// ❌ Evitar
+import { Hero } from "@/features/landing/components/Hero";
+```
+
+### Backend
+
+**API (`app/api/`)**: Rutas y endpoints
+**Services (`app/services/`)**: Lógica de negocio
+**Pipeline (`app/pipeline/`)**: Orquestación del procesamiento de audio
+**Tests (`tests/`)**: Tests unitarios e integración
+
+## Reglas
+
+1. **No crear archivos en la raíz** que pertenezcan a frontend o backend
+2. **Mantener monorepo**: `frontend/` y `backend/` separados
+3. **Feature isolation**: Cada feature debe ser autocontenida
+4. **Shared components**: Solo componentes verdaderamente reutilizables en `components/`
+5. **Clear boundaries**: No importar entre features (usar shared si es necesario)

@@ -1,18 +1,18 @@
 ---
-description: Estrategia de testing – unit, integration, E2E
+description: Testing strategy – unit, integration, E2E
 alwaysApply: true
 ---
 
-# Beatwise – Testing
+# BeatWise – Testing
 
 **Docs**: `docs/TESTING.md`
 
-**Frontend**: Vitest + React Testing Library. Tests en `*.test.tsx` o `__tests__/`. Componentes, hooks, utils.
+**Frontend**: Vitest + React Testing Library. Tests in `*.test.tsx` or `__tests__/`. Components, hooks, utils.
 
-**Backend**: pytest. Units en `tests/`, fixtures en `conftest.py`. Probar validation, normalization, tagging, API endpoints.
+**Backend**: pytest. Units in `tests/`, fixtures in `conftest.py`. Test validation, normalization, tagging, API endpoints.
 
-**API**: TestClient de FastAPI. Probar POST /upload (200, session_id), GET /status, GET /download. Mock LLM para no gastar API.
+**API**: FastAPI TestClient. Test POST /upload (200, session_id), GET /status, GET /download. Mock LLM to avoid API costs.
 
-**Fixtures**: MP3/WAV pequeños en `backend/tests/fixtures/`. No commitear archivos grandes.
+**Fixtures**: Small MP3/WAV in `backend/tests/fixtures/`. Don't commit large files.
 
-**Cobertura Fase 0**: >60% en services críticos. Nuevo código debe incluir tests cuando aplique.
+**Coverage Phase 0**: >60% on critical services. New code should include tests when applicable.

@@ -1,13 +1,13 @@
 ---
-description: Funcionalidades del pipeline – subida, validación, etiquetado
+description: Pipeline features – upload, validation, tagging
 alwaysApply: true
 ---
 
-# Beatwise – Funcionalidades (Fase 0)
+# BeatWise – Features (Phase 0)
 
-1. **Subida**: Formatos MP3, WAV, FLAC. Validar que sea readable, no corrupto.
-2. **Verificación de calidad**: Bitrate real vs declarado (Fakin' the Funk), artefactos, clipping, RMS.
-3. **Normalización**: RMS objetivo, ajuste de volumen. Cuidado con pistas muy bajas (pérdida de calidad).
-4. **Etiquetado**: Extraer ID3 existentes. LLM para completar: artista, título, género, BPM, key, intensidad, mood.
+1. **Upload**: MP3, WAV, FLAC formats. Validate that files are readable, not corrupted.
+2. **Quality verification**: Real vs declared bitrate (Fakin' the Funk), artifacts, clipping, RMS.
+3. **Normalization**: Target RMS, volume adjustment. Beware of very low tracks (quality loss).
+4. **Tagging**: Extract existing ID3. LLM to complete: artist, title, genre, BPM, key, intensity, mood.
 
-**Organización** (género > subgénero > intensidad) es Fase 1, no Fase 0.
+**Organization** (genre > subgenre > intensity) is Phase 1, not Phase 0.

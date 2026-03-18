@@ -2,106 +2,122 @@
 
 **Know your beats, prep your sets.**
 
-BeatWise ayuda a DJs a ahorrar tiempo preparando su librería: validación de calidad, organización de archivos y sets con IA y workflows automáticos. Automatiza todo lo que hay entre la descarga de canciones y el inicio de la sesión.
+BeatWise helps DJs save time preparing their library: quality validation, file organization, and AI-powered automated workflows. Automates everything between downloading tracks and starting your session.
 
 ---
 
-## Qué hace BeatWise
+## What BeatWise Does
 
-- **Sube** tus carpetas de descargas
-- **Valida** calidad real (bitrate, clipping, artefactos)
-- **Normaliza** volumen entre pistas
-- **Etiqueta** con IA: artista, título, género, BPM, key, mood
-- **Organiza** por género, subgénero e intensidad (Fase 1+)
-- **Descarga** librería lista para Rekordbox / VirtualDJ
+- **Upload** your download folders
+- **Validate** real quality (bitrate, clipping, artifacts)
+- **Normalize** volume across tracks
+- **Tag** with AI: artist, title, genre, BPM, key, mood
+- **Organize** by genre, subgenre, and intensity (Phase 1+)
+- **Download** library ready for Rekordbox / VirtualDJ
 
 ---
 
-## Estado del proyecto
+## Project Status
 
-| Fase | Estado | Descripción |
+| Phase | Status | Description |
 |------|--------|-------------|
-| **Fase 0** | En desarrollo | Web: subir → procesar → descargar. Sin auth. Validar valor. |
-| **Fase 1** | Planificada | Auth, organización, tracking. Librería lista para software DJ. |
-| **Fase 2** | Planificada | App Desktop, AI Recommendation, AI Mix, integración Rekordbox. |
+| **Phase 0** | In Development | Web: upload → process → download. No auth. Value validation. |
+| **Phase 1** | Planned | Auth, organization, tracking. Library ready for DJ software. |
+| **Phase 2** | Planned | Desktop App, AI Recommendation, AI Mix, Rekordbox integration. |
 
 ---
 
 ## Stack
 
-- **Frontend**: React + Vite
+- **Frontend**: Next.js 15 + React 19 + TypeScript + Tailwind CSS v4
 - **Backend**: Python + FastAPI
-- **Procesamiento audio**: librosa, mutagen, ffmpeg
-- **Etiquetado**: LLM (OpenAI / Anthropic)
+- **Audio Processing**: librosa, mutagen, ffmpeg
+- **Tagging**: LLM (OpenAI / Anthropic)
 
 ---
 
-## Cómo empezar
+## Getting Started
 
-### Requisitos
+### Requirements
 
-- Node.js 18+
-- Python 3.10+
-- ffmpeg
+- Node.js 20+
+- pnpm 9+ (package manager)
+- Python 3.10+ (for backend, coming soon)
+- ffmpeg (for backend, coming soon)
 
-### Instalación
+### Installation
 
 ```bash
-# Clonar
+# Clone
 git clone https://github.com/YOUR_ORG/beatwise.git
 cd beatwise
 
-# Frontend
-cd frontend && npm install
+# Frontend (Next.js 15)
+cd frontend && pnpm install
 
-# Backend
+# Backend (when available)
 cd ../backend && pip install -r requirements.txt
 ```
 
-### Desarrollo
+### Development
 
 ```bash
-# Terminal 1: Backend
-cd backend && uvicorn main:app --reload
+# Terminal 1: Frontend (Next.js - available now)
+cd frontend && pnpm dev
+# Open http://localhost:3000
 
-# Terminal 2: Frontend
-cd frontend && npm run dev
+# Terminal 2: Backend (coming soon)
+cd backend && uvicorn main:app --reload
 ```
 
-### Variables de entorno
+### Environment Variables
 
-Copia `.env.example` a `.env` y configura:
+Copy `.env.example` to `.env` and configure:
 
-- `LLM_API_KEY` – API key para etiquetado automático
-- `TEMP_STORAGE_PATH` – Ruta para archivos temporales (opcional)
-- `MAX_UPLOAD_SIZE` – Límite de subida en bytes (opcional)
+- `LLM_API_KEY` – API key for automatic tagging
+- `TEMP_STORAGE_PATH` – Path for temporary files (optional)
+- `MAX_UPLOAD_SIZE` – Upload limit in bytes (optional)
 
 ---
 
-## Estructura
+## Structure
 
 ```
 beatwise/
-├── frontend/          # SPA React
-├── backend/           # API FastAPI + pipeline de audio
-├── docs/              # Documentación del proyecto
-└── .cursor/rules/     # Reglas para desarrollo
+├── frontend/          # Next.js 15 + React 19 + TypeScript + Tailwind v4
+│   ├── app/          # App Router (pages & layouts)
+│   ├── features/     # Feature modules (modular architecture)
+│   │   └── landing/  # Landing page feature
+│   ├── components/   # Shared UI components only
+│   │   ├── ui/       # UI primitives (Button, Input)
+│   │   └── layout/   # Layout components (Header, Footer)
+│   ├── lib/          # Utilities and shared code
+│   ├── hooks/        # Shared hooks
+│   └── public/       # Static assets
+├── backend/           # FastAPI API + audio pipeline (coming soon)
+├── docs/              # Project documentation
+└── .cursor/rules/     # Development rules
 ```
 
+**Frontend Architecture**: Feature-based modular structure for scalability
+- See: `frontend/ARCHITECTURE.md` for complete guide
+- See: `frontend/ARCHITECTURE-QUICK.md` for quick reference
+
 ---
 
-## Documentación
+## Documentation
 
-- [Proyecto y funcionalidades](docs/PROYECTO.md)
-- [Marca y UI](docs/MARCA.md)
+- [Project and Features](docs/PROYECTO.md)
+- [Brand and UI](docs/MARCA.md)
 - [CI/CD](docs/CI-CD.md)
 - [Testing](docs/TESTING.md)
-- [Arquitectura – Fase 0](docs/ARQUITECTURA-FASE-0.md)
-- [Arquitectura – Fase 1](docs/ARQUITECTURA-FASE-1.md)
-- [Arquitectura – Fase 2](docs/ARQUITECTURA-FASE-2.md)
+- [Theme Toggle Implementation](docs/THEME-TOGGLE.md)
+- [Architecture – Phase 0](docs/ARQUITECTURA-FASE-0.md)
+- [Architecture – Phase 1](docs/ARQUITECTURA-FASE-1.md)
+- [Architecture – Phase 2](docs/ARQUITECTURA-FASE-2.md)
 
 ---
 
-## Licencia
+## License
 
-Por definir.
+To be defined.

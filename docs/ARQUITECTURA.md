@@ -1,27 +1,27 @@
-# Arquitectura técnica – Beatwise Assistant
+# Technical Architecture – BeatWise Assistant
 
-Índice de documentación de arquitectura por fase.
+Architecture documentation index by phase.
 
 ---
 
-## Documentos por fase
+## Documents by Phase
 
-| Fase | Documento | Descripción |
+| Phase | Document | Description |
 |------|-----------|-------------|
-| **Fase 0** | [ARQUITECTURA-FASE-0.md](ARQUITECTURA-FASE-0.md) | Validación / Proof of Concept. Sin auth. Subir → procesar → descargar. |
-| **Fase 1** | [ARQUITECTURA-FASE-1.md](ARQUITECTURA-FASE-1.md) | MVP Web con usuarios. Auth, organización, export para Rekordbox/VirtualDJ. |
-| **Fase 2** | [ARQUITECTURA-FASE-2.md](ARQUITECTURA-FASE-2.md) | Desktop. AI Recommendation, AI Mix, integración local con software DJ. |
+| **Phase 0** | [ARQUITECTURA-FASE-0.md](ARQUITECTURA-FASE-0.md) | Validation / Proof of Concept. No auth. Upload → process → download. |
+| **Phase 1** | [ARQUITECTURA-FASE-1.md](ARQUITECTURA-FASE-1.md) | Web MVP with users. Auth, organization, export for Rekordbox/VirtualDJ. |
+| **Phase 2** | [ARQUITECTURA-FASE-2.md](ARQUITECTURA-FASE-2.md) | Desktop. AI Recommendation, AI Mix, local integration with DJ software. |
 
 ---
 
-## Principio general de almacenamiento
+## General Storage Principle
 
-**No guardar archivos de audio de forma persistente en servidor.**
+**Do not persistently store audio files on server.**
 
-| Fase | Archivos de audio | Auth | Persistencia |
+| Phase | Audio Files | Auth | Persistence |
 |------|-------------------|------|--------------|
-| 0 | Temp, borrar tras procesar | No | Ninguna |
-| 1 | Temp, borrar tras procesar | Sí | Analytics, usuarios |
-| 2 | Local (filesystem del usuario) | Sí | Config local, Rekordbox |
+| 0 | Temp, delete after processing | No | None |
+| 1 | Temp, delete after processing | Yes | Analytics, users |
+| 2 | Local (user filesystem) | Yes | Local config, Rekordbox |
 
-En Fase 0 y 1: procesar en disco temporal y permitir descarga. En Fase 2, la app accede directo al filesystem del usuario.
+In Phase 0 and 1: process in temp disk and allow download. In Phase 2, app directly accesses user filesystem.

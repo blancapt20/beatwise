@@ -1,107 +1,107 @@
-# Arquitectura – Fase 0 (Validación / Proof of Concept)
+# Architecture – Phase 0 (Validation / Proof of Concept)
 
-Web app mínima para validar que el producto aporta valor. Sin auth, sin persistencia.
-
----
-
-## Objetivo
-
-Validar adopción con el mínimo esfuerzo: subir → procesar → descargar.
-
-**Funcionalidades**: 1 (Subida), 2 (Verificación de calidad), 3 (Normalización), 4 (Etiquetado).
+Minimal web app to validate that the product provides value. No auth, no persistence.
 
 ---
 
-## Diagrama de componentes
+## Objective
+
+Validate adoption with minimum effort: upload → process → download.
+
+**Features**: 1 (Upload), 2 (Quality verification), 3 (Normalization), 4 (Tagging).
+
+---
+
+## Component Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                        FRONTEND (Web App)                        │
-│  • Drag & drop subida (sin login)                                │
-│  • Vista de progreso del procesamiento                           │
-│  • Descarga ZIP (archivos procesados + reporte de calidad)       │
+│  • Drag & drop upload (no login)                                 │
+│  • Processing progress view                                      │
+│  • ZIP download (processed files + quality report)               │
 └───────────────────────────┬─────────────────────────────────────┘
                             │ HTTP (REST)
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                        BACKEND (API Server)                      │
 │                                                                  │
-│  Upload → Validación → Normalización → Etiquetado → ZIP → Borrar │
+│  Upload → Validation → Normalization → Tagging → ZIP → Delete   │
 │                                                                  │
-│  Todo en disco temporal. Sin persistencia.                       │
+│  All in temp disk. No persistence.                              │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     SERVICIOS EXTERNOS                           │
-│  • LLM API (OpenAI / Anthropic) – etiquetado automático          │
-│  • Disco local – carpeta temporal, borrar tras descarga          │
+│                     EXTERNAL SERVICES                            │
+│  • LLM API (OpenAI / Anthropic) – automatic tagging             │
+│  • Local disk – temp folder, delete after download              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Flujo de datos
+## Data Flow
 
 ```
-1. Usuario sube archivos
+1. User uploads files
        ↓
-2. Backend escribe en /tmp/beatwise-{session-id}/
+2. Backend writes to /tmp/beatwise-{session-id}/
        ↓
-3. Validación de calidad (bitrate, clipping, artefactos, RMS)
+3. Quality validation (bitrate, clipping, artifacts, RMS)
        ↓
-4. Normalización de volumen (opcional)
+4. Volume normalization (optional)
        ↓
-5. Etiquetado (extraer ID3, completar con LLM si falta)
+5. Tagging (extract ID3, complete with LLM if missing)
        ↓
-6. Generar ZIP con archivos procesados + reporte
+6. Generate ZIP with processed files + report
        ↓
-7. Servir descarga
+7. Serve download
        ↓
-8. Borrar carpeta temporal (inmediato o tras 1h)
+8. Delete temp folder (immediate or after 1h)
 ```
 
 ---
 
-## Almacenamiento
+## Storage
 
-| Aspecto | Decisión |
+| Aspect | Decision |
 |---------|----------|
-| **Archivos de audio** | Disco temporal, borrar tras procesar |
+| **Audio files** | Temp disk, delete after processing |
 | **Auth** | No |
-| **Base de datos** | No |
-| **Cloud (S3, AWS)** | No. Disco local suficiente. |
+| **Database** | No |
+| **Cloud (S3, AWS)** | No. Local disk sufficient. |
 
-**Implementación temporal**:
-- Path: `/tmp/beatwise-{uuid}/` o equivalente
-- Lifecycle: borrar tras descarga o job programado cada X minutos
-- Límite recomendado: 2 GB por sesión, N archivos máximo
+**Temporary implementation**:
+- Path: `/tmp/beatwise-{uuid}/` or equivalent
+- Lifecycle: delete after download or scheduled job every X minutes
+- Recommended limit: 2 GB per session, N max files
 
 ---
 
-## API sugerida (mínima)
+## Suggested API (minimal)
 
-| Método | Endpoint | Descripción |
+| Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/upload` | Recibe multipart/form-data, devuelve `session_id` |
-| GET | `/api/status/{session_id}` | Estado del procesamiento (pending, processing, ready, error) |
-| GET | `/api/download/{session_id}` | Descarga ZIP (cuando status = ready) |
+| POST | `/api/upload` | Receives multipart/form-data, returns `session_id` |
+| GET | `/api/status/{session_id}` | Processing status (pending, processing, ready, error) |
+| GET | `/api/download/{session_id}` | Download ZIP (when status = ready) |
 
-Alternativa: procesamiento síncrono en un único POST que devuelve el ZIP al terminar (para MVP muy simple).
+Alternative: synchronous processing in a single POST that returns the ZIP when finished (for very simple MVP).
 
 ---
 
-## Seguridad y rendimiento
+## Security and Performance
 
-### Seguridad
+### Security
 
-- Límite de tamaño por subida (ej. 2 GB)
-- Límite de archivos (ej. 200)
-- Sanitización de nombres de archivo
-- Cookie opcional: session ID para rate limiting o analytics anónimos
+- Upload size limit (e.g. 2 GB)
+- File count limit (e.g. 200)
+- Filename sanitization
+- Optional cookie: session ID for rate limiting or anonymous analytics
 
-### Rendimiento
+### Performance
 
-- Procesamiento async recomendado (cola de jobs) para no timeout en subidas grandes
-- Polling o WebSocket para mostrar progreso
-- Procesar archivos en lotes paralelos si el backend lo permite
+- Async processing recommended (job queue) to avoid timeout on large uploads
+- Polling or WebSocket to show progress
+- Process files in parallel batches if backend allows

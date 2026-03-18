@@ -1,20 +1,20 @@
 ---
-description: Decisiones de arquitectura – almacenamiento, fases
+description: Architecture decisions – storage, phases
 alwaysApply: true
 ---
 
-# Beatwise – Arquitectura
+# BeatWise – Architecture
 
-**Principio clave**: No guardar archivos de audio de forma persistente. Solo procesar en temporal y permitir descarga.
+**Key principle**: Do not persistently store audio files. Only process in temporary storage and allow download.
 
-**Fase 0**:
-- Sin auth, sin base de datos
-- Archivos en `/tmp/beatwise-{session-id}/`
-- Borrar tras descarga o tras ~1h
-- Disco local. No S3/AWS.
+**Phase 0**:
+- No auth, no database
+- Files in `/tmp/beatwise-{session-id}/`
+- Delete after download or after ~1h
+- Local disk. No S3/AWS.
 
-**Fase 1**: Temp igual. DB solo para usuarios y analytics. Nunca persistir audios.
+**Phase 1**: Temp same. DB only for users and analytics. Never persist audio files.
 
-**Pipeline Fase 0**: Upload → Validación → Normalización → Etiquetado (LLM) → ZIP → Descarga → Borrar.
+**Pipeline Phase 0**: Upload → Validation → Normalization → Tagging (LLM) → ZIP → Download → Delete.
 
-Ver `docs/ARQUITECTURA-FASE-0.md` para API y flujo detallado.
+See `docs/ARQUITECTURA-FASE-0.md` for detailed API and flow.

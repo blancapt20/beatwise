@@ -1,316 +1,316 @@
-# Beatwise Assistant – Documentación del MVP
+# BeatWise Assistant – MVP Documentation
 
-## Resumen ejecutivo
+## Executive Summary
 
-**Beatwise Assistant** es una capa intermedia que ayuda a DJs a ahorrar tiempo en la preparación de su librería: validación y organización de ficheros y sets usando IA y workflows automáticos. Automatiza todo el proceso entre la descarga de las canciones y el inicio de la sesión.
-
----
-
-## Objetivo principal
-
-> Ayudar a DJs a ahorrar tiempo en la preparación de su librería, validación y organización de ficheros y de sets usando IA y workflows automáticos.
-
-Beatwise es una capa intermedia que automatiza:
-- La descarga de canciones → Validación → Organización → Preparación del Set
+**BeatWise Assistant** is a middleware layer that helps DJs save time in library preparation: validation and organization of files and sets using AI and automated workflows. It automates the entire process between downloading tracks and starting a session.
 
 ---
 
-## Funcionalidades
+## Main Objective
 
-### 1. Subida
+> Help DJs save time in library preparation, file and set validation and organization using AI and automated workflows.
 
-El usuario sube la carpeta donde ha descargado música durante el día.
+BeatWise is a middleware layer that automates:
+- Track download → Validation → Organization → Set Preparation
 
-- **Reconocimiento de formatos** soportados (MP3, WAV, FLAC, etc.)
-- **Validación básica** para ver si el archivo se puede procesar
-- **Detección de archivos corruptos** o que no son legibles
+---
 
-### 2. Verificación de calidad
+## Features
 
-Control de calidad del audio para garantizar estándares mínimos:
+### 1. Upload
 
-| Verificación | Descripción |
+User uploads the folder where they've downloaded music during the day.
+
+- **Format recognition** supported (MP3, WAV, FLAC, etc.)
+- **Basic validation** to check if file can be processed
+- **Detection of corrupted files** or unreadable files
+
+### 2. Quality Verification
+
+Audio quality control to ensure minimum standards:
+
+| Verification | Description |
 |--------------|-------------|
-| **Fakin' the Funk** | Detectar si el bitrate real corresponde al indicado en metadatos |
-| **Artefactos** | Defectos de audio por compresiones muy agresivas |
-| **Clipping** | Si supera el límite de volumen máximo representable en el archivo digital |
-| **Alertas** | Para archivos que no cumplen el estándar mínimo |
+| **Fakin' the Funk** | Detect if real bitrate matches what's indicated in metadata |
+| **Artifacts** | Audio defects from aggressive compression |
+| **Clipping** | If it exceeds the maximum representable volume limit in the digital file |
+| **Alerts** | For files that don't meet minimum standard |
 
-### 3. Normalización de volumen
+### 3. Volume Normalization
 
-- **Cálculo de RMS** general de cada pista
-- **Ajuste automático** para que todas las pistas estén dentro de un rango uniforme
-- **Consideración**: subir volumen en una pista con nivel bajo puede afectar a la calidad; debe evaluarse caso por caso
+- **RMS calculation** for each track
+- **Automatic adjustment** so all tracks are within a uniform range
+- **Consideration**: raising volume on a low-level track can affect quality; should be evaluated case by case
 
-### 4. Etiquetado automático
+### 4. Automatic Tagging
 
-Completar metadatos ID3 (IA):
+Complete ID3 metadata (AI):
 
-- **Básicos**: artista, título, género
+- **Basic**: artist, title, genre
 - **DJ**: BPM, key
-- **Extracción**: usar metadatos existentes cuando ya existen
-- **IA**: generar vía LLM cuando falta información
-- **Etiquetas internas** para sesiones: "intensidad", "mood", etc.
+- **Extraction**: use existing metadata when already present
+- **AI**: generate via LLM when information is missing
+- **Internal tags** for sessions: "intensity", "mood", etc.
 
-### 5. Organización *(Fase 1 y 2)*
+### 5. Organization *(Phase 1 and 2)*
 
-Inspirado en el modelo de Soulseek: acceso a carpetas y la IA las organiza según las tags.
+Inspired by Soulseek model: folder access and AI organizes according to tags.
 
-**Requisito**: las tags deben estar muy bien definidas.
+**Requirement**: tags must be very well defined.
 
-**Criterios de organización**:
-- Género
-- Subgénero
-- Intensidad
-- Criterio definido por el usuario
+**Organization criteria**:
+- Genre
+- Subgenre
+- Intensity
+- User-defined criteria
 
-### 6. AI Recommendation para crear sesiones *(Fase 2)*
+### 6. AI Recommendation for Session Creation *(Phase 2)*
 
-Chatbot que recibe indicaciones del usuario, por ejemplo:
+Chatbot that receives user instructions, for example:
 
-> *"Quiero hacer una sesión de 3 horas de X tipo de música que vaya incrementando la intensidad. Créame tres carpetas de canciones donde haya: 20 de warmup, 20 para empezar a mover el culo, 20 para el momento en que todo el mundo ya está borracho y dándolo todo, y 10 para el cierre."*
+> *"I want to make a 3-hour session of X type of music that increases in intensity. Create three folders of songs where there are: 20 for warmup, 20 to start moving, 20 for when everyone is drunk and going all out, and 10 for closing."*
 
-### 7. AI Mix Recommendation *(Fase 2)*
+### 7. AI Mix Recommendation *(Phase 2)*
 
-Análisis de dos canciones concretas para proponer cómo mezclarlas:
+Analysis of two specific tracks to propose how to mix them:
 
-- **Análisis de compatibilidad**
-- **Propuestas** de tipo de mix
-- **Pasos** para ejecutarlos
-- **UI de pasos** para guiar al DJ
-
----
-
-## Fases de desarrollo
-
-### Fase 0 (Validación / Proof of Concept) – Web
-
-**Objetivo**: validar que el producto aporta valor con el mínimo esfuerzo posible.
-
-**Plataforma**: Web app.
-
-**Funcionalidades incluidas**: 1, 2, 3 y 4 (subida, verificación, normalización, etiquetado).
-
-**Características**:
-- **Sin usuarios ni autenticación**
-- **Sin persistencia**: subir → procesar en memoria/disco temporal → descargar resultado
-- **Cookie opcional** para sesión anónima, analytics básicos o rate limiting
-- **Sin AWS**: disco local del servidor suficiente
-
-**Flujo de uso**:
-1. Subir carpetas/archivos
-2. Análisis de calidad + normalización + etiquetado
-3. **Descarga** del resultado (archivos procesados con tags, reporte de calidad)
-
-**Criterio de éxito**: si hay adopción y uso repetido → evolucionar a Fase 1.
+- **Compatibility analysis**
+- **Mix type proposals**
+- **Steps** to execute them
+- **Step-by-step UI** to guide the DJ
 
 ---
 
-### Fase 1 (MVP con usuarios) – Web
+## Development Phases
 
-**Objetivo**: producto con seguimiento de usuarios y funcionalidad completa del pipeline web.
+### Phase 0 (Validation / Proof of Concept) – Web
 
-**Plataforma**: Web app.
+**Objective**: validate that the product provides value with minimum effort.
 
-**Funcionalidades incluidas**: 1, 2, 3, 4 y 5 (añade organización).
+**Platform**: Web app.
 
-**Características**:
-- **Auth** simple (registro/login)
-- **Tracking/analytics** de uso por usuario (no se guardan archivos de audio)
-- **Organización** de carpetas y playlists para Rekordbox/VirtualDJ
+**Included features**: 1, 2, 3 and 4 (upload, verification, normalization, tagging).
 
-**Flujo de uso**:
-1. Subir carpetas/archivos
-2. Análisis de calidad + normalización
-3. Etiquetado y organización
-4. **Descarga** de la librería organizada lista para Rekordbox / VirtualDJ
+**Characteristics**:
+- **No users or authentication**
+- **No persistence**: upload → process in memory/temp disk → download result
+- **Optional cookie** for anonymous session, basic analytics or rate limiting
+- **No AWS**: local server disk sufficient
 
----
+**Usage flow**:
+1. Upload folders/files
+2. Quality analysis + normalization + tagging
+3. **Download** result (processed files with tags, quality report)
 
-### Fase 2 (IA avanzada) – Desktop
-
-**Objetivo**: diferenciación con inteligencia creativa e integración total.
-
-**Plataforma**: Launcher / Desktop App (usuarios avanzados).
-
-**Funcionalidades incluidas**: 6 y 7 + todas las de Fase 1.
-
-**Características adicionales**:
-- IA para generar sets
-- Recomendaciones de mezcla
-- Integración total con carpetas locales y Rekordbox
+**Success criterion**: if there's adoption and repeated use → evolve to Phase 1.
 
 ---
 
-## Almacenamiento
+### Phase 1 (MVP with Users) – Web
 
-| Aspecto | Fase 0 | Fase 1 | Fase 2 |
+**Objective**: product with user tracking and complete web pipeline functionality.
+
+**Platform**: Web app.
+
+**Included features**: 1, 2, 3, 4 and 5 (adds organization).
+
+**Characteristics**:
+- **Simple auth** (register/login)
+- **Usage tracking/analytics** per user (audio files not stored)
+- **Organization** of folders and playlists for Rekordbox/VirtualDJ
+
+**Usage flow**:
+1. Upload folders/files
+2. Quality analysis + normalization
+3. Tagging and organization
+4. **Download** organized library ready for Rekordbox / VirtualDJ
+
+---
+
+### Phase 2 (Advanced AI) – Desktop
+
+**Objective**: differentiation with creative intelligence and total integration.
+
+**Platform**: Launcher / Desktop App (advanced users).
+
+**Included features**: 6 and 7 + all from Phase 1.
+
+**Additional characteristics**:
+- AI to generate sets
+- Mix recommendations
+- Total integration with local folders and Rekordbox
+
+---
+
+## Storage
+
+| Aspect | Phase 0 | Phase 1 | Phase 2 |
 |---------|--------|--------|--------|
-| **Archivos de audio** | Temp, borrar tras procesar | Temp, borrar tras procesar | Local (filesystem del usuario) |
-| **Auth / Usuarios** | No | Sí | Sí |
-| **Persistencia** | Ninguna | Analytics y métricas de uso | Local + integración Rekordbox |
-| **Cloud (S3, etc.)** | No | No necesario | No |
+| **Audio files** | Temp, delete after processing | Temp, delete after processing | Local (user filesystem) |
+| **Auth / Users** | No | Yes | Yes |
+| **Persistence** | None | Analytics and usage metrics | Local + Rekordbox integration |
+| **Cloud (S3, etc.)** | No | Not necessary | No |
 
-**Principio**: no guardar archivos de audio de forma persistente. Solo procesar en temporal y permitir descarga. En Fase 2, el usuario tiene sus archivos locales y la app accede directamente al filesystem.
+**Principle**: do not persistently store audio files. Only process in temp and allow download. In Phase 2, user has their local files and app accesses filesystem directly.
 
 ---
 
-## Arquitectura
+## Architecture
 
-### Fase 0 – Flujo Web (validación)
-
-```
-Usuario (anónimo) → Web App → Backend (Server)
-          │
-          ▼
-  1. Subida de carpetas/archivos
-          │
-          ▼
-  2. Validación de calidad
-  3. Normalización de volumen (opcional)
-  4. Etiquetado automático
-          │
-          ▼
-  5. Descarga ZIP con archivos procesados + reporte
-          │
-          ▼
-  [Borrado de archivos temporales]
-```
-
-### Fase 1 – Flujo Web (MVP completo)
+### Phase 0 – Web Flow (validation)
 
 ```
-Usuario → Web App → Backend (Server)
+Anonymous User → Web App → Backend (Server)
           │
           ▼
-  1. Subida de carpetas/archivos
+  1. Upload folders/files
           │
           ▼
-  2. Validación de calidad
-     • Bitrate real
+  2. Quality validation
+  3. Volume normalization (optional)
+  4. Automatic tagging
+          │
+          ▼
+  5. Download ZIP with processed files + report
+          │
+          ▼
+  [Temp file deletion]
+```
+
+### Phase 1 – Web Flow (complete MVP)
+
+```
+User → Web App → Backend (Server)
+          │
+          ▼
+  1. Upload folders/files
+          │
+          ▼
+  2. Quality validation
+     • Real bitrate
      • Clipping
-     • Artefactos
-     • Volumen/RMS
+     • Artifacts
+     • Volume/RMS
           │
           ▼
-  3. Normalización de volumen (opcional)
+  3. Volume normalization (optional)
           │
           ▼
-  4. Etiquetado automático
-     • Extrae metadatos si existen
-     • Llama a LLM para completar tags
-       (Artista, Título, Género, BPM, Key, Mood/Intensidad)
+  4. Automatic tagging
+     • Extract metadata if exists
+     • Call LLM to complete tags
+       (Artist, Title, Genre, BPM, Key, Mood/Intensity)
           │
           ▼
-  5. Organización de carpetas y playlists
-     • Basado en tags
-     • Genera estructura lista para Rekordbox/VirtualDJ
+  5. Folder and playlist organization
+     • Based on tags
+     • Generate structure ready for Rekordbox/VirtualDJ
           │
           ▼
   6. Export
-     • Descarga ZIP o carpeta final organizada
+     • Download ZIP or final organized folder
 ```
 
-### Fase 2 – Flujo Desktop
+### Phase 2 – Desktop Flow
 
 ```
-Usuario → Launcher/Desktop App
+User → Launcher/Desktop App
           │
           ▼
-  1. Acceso directo a carpetas locales
+  1. Direct access to local folders
           │
           ▼
-  2. Procesamiento local:
-     • Validación (clipping, artefactos, RMS)
-     • Normalización de volumen
+  2. Local processing:
+     • Validation (clipping, artifacts, RMS)
+     • Volume normalization
           │
           ▼
-  3. Etiquetado automático
-     • LLM (API o modelo local)
+  3. Automatic tagging
+     • LLM (API or local model)
           │
           ▼
-  4. Organización
-     • Reescribe carpetas y playlists directamente en filesystem
+  4. Organization
+     • Rewrite folders and playlists directly in filesystem
           │
           ▼
-  5. Integración con Rekordbox/VirtualDJ
-     • Lectura de DB o playlists
+  5. Rekordbox/VirtualDJ Integration
+     • Read DB or playlists
           │
           ▼
   6. AI Recommendation / Mix Suggestion
-     • IA analiza librería y genera sets
-     • Sugerencias de crossfade, key match, BPM match
+     • AI analyzes library and generates sets
+     • Crossfade, key match, BPM match suggestions
           │
           ▼
-  7. Export / Aplicación directa de cambios en software DJ
+  7. Export / Direct application of changes in DJ software
 ```
 
 ---
 
-## Decisiones técnicas por fase
+## Technical Decisions by Phase
 
-| Funcionalidad | Fase 0 (Validación) | Fase 1 (Web MVP) | Fase 2 (Desktop) |
+| Feature | Phase 0 (Validation) | Phase 1 (Web MVP) | Phase 2 (Desktop) |
 |---------------|:-------:|:-----------------:|:-----------------:|
-| Subida / descarga | ✅ | ✅ | ✅ (directo) |
-| Auth / usuarios | ❌ | ✅ | ✅ |
-| Acceso a carpetas locales | ❌ | ❌ | ✅ |
-| Validación de calidad | ✅ | ✅ | ✅ |
-| Normalización de volumen | ✅ | ✅ | ✅ |
-| Etiquetado automático | ✅ | ✅ (LLM API) | ✅ (API o local) |
-| Organización de carpetas | ❌ | ✅ (export) | ✅ (directo FS) |
+| Upload / download | ✅ | ✅ | ✅ (direct) |
+| Auth / users | ❌ | ✅ | ✅ |
+| Local folder access | ❌ | ❌ | ✅ |
+| Quality validation | ✅ | ✅ | ✅ |
+| Volume normalization | ✅ | ✅ | ✅ |
+| Automatic tagging | ✅ | ✅ (LLM API) | ✅ (API or local) |
+| Folder organization | ❌ | ✅ (export) | ✅ (direct FS) |
 | AI Recommendations / Mix | ❌ | ❌ | ✅ |
-| Integración Rekordbox/VirtualDJ | ❌ | ❌ | ✅ |
-| Cloud (S3, etc.) | No | No necesario | No |
+| Rekordbox/VirtualDJ Integration | ❌ | ❌ | ✅ |
+| Cloud (S3, etc.) | No | Not necessary | No |
 
 ---
 
-## Stack tecnológico sugerido (referencia)
+## Suggested Tech Stack (reference)
 
-Para Fase 0 y Fase 1 (Web):
+For Phase 0 and Phase 1 (Web):
 
-- **Frontend**: SPA (React/Vue/Svelte) con drag-and-drop para subida
-- **Backend**: API REST o similar para procesamiento
-- **Procesamiento de audio**: bibliotecas como `librosa`, `essentia`, `mutagen` (Python) o `audiowaveform`, `ffmpeg`
-- **LLM**: API (OpenAI, Anthropic, etc.) para etiquetado automático
-- **Almacenamiento temporal**: disco local del servidor (`/tmp` o carpeta dedicada). Sin S3 ni cloud para el MVP.
-- **Export**: generación de ZIP (archivos procesados en Fase 0; estructura organizada en Fase 1)
+- **Frontend**: SPA (React/Vue/Svelte) with drag-and-drop for upload
+- **Backend**: REST API or similar for processing
+- **Audio processing**: libraries like `librosa`, `essentia`, `mutagen` (Python) or `audiowaveform`, `ffmpeg`
+- **LLM**: API (OpenAI, Anthropic, etc.) for automatic tagging
+- **Temporary storage**: local server disk (`/tmp` or dedicated folder). No S3 or cloud for MVP.
+- **Export**: ZIP generation (processed files in Phase 0; organized structure in Phase 1)
 
-Para la app Desktop (Fase 2):
+For Desktop app (Phase 2):
 
-- **Electron** o **Tauri** para app multiplataforma
-- **Acceso directo al filesystem**
-- **Integración**: lectura de bases de datos de Rekordbox (SQLite) y formatos de playlist estándar
+- **Electron** or **Tauri** for cross-platform app
+- **Direct filesystem access**
+- **Integration**: reading Rekordbox databases (SQLite) and standard playlist formats
 
 ---
 
-## Glosario
+## Glossary
 
-| Término | Significado |
+| Term | Meaning |
 |---------|-------------|
-| **Fakin' the Funk** | Archivo que declara un bitrate superior al real (ej. 320kbps cuando es 128kbps) |
-| **Clipping** | Distorsión por superar el rango dinámico del formato digital |
-| **RMS** | Root Mean Square – medida de nivel promedio de audio |
-| **ID3** | Estándar de metadatos en archivos MP3 |
-| **Key** | Tonalidad musical de una pista (ej. Am, Cmaj) |
+| **Fakin' the Funk** | File that declares higher bitrate than real (e.g. 320kbps when it's 128kbps) |
+| **Clipping** | Distortion from exceeding the dynamic range of digital format |
+| **RMS** | Root Mean Square – average audio level measurement |
+| **ID3** | Metadata standard in MP3 files |
+| **Key** | Musical key of a track (e.g. Am, Cmaj) |
 
 ---
 
-## Próximos pasos
+## Next Steps
 
-**Fase 0**:
-1. Implementar pipeline: subida → validación → normalización → etiquetado → descarga
-2. Procesamiento en disco temporal, borrado tras descarga
-3. Cookie opcional para analytics anónimos
-4. Desplegar y validar con usuarios reales
+**Phase 0**:
+1. Implement pipeline: upload → validation → normalization → tagging → download
+2. Processing in temp disk, delete after download
+3. Optional cookie for anonymous analytics
+4. Deploy and validate with real users
 
-**Fase 1** (cuando Fase 0 valide):
-1. Añadir auth y modelo de usuario
-2. Implementar organización de carpetas (funcionalidad 5)
-3. Persistir analytics de uso (sin archivos de audio)
-4. Diseño de UX para subida, progreso y descarga
+**Phase 1** (when Phase 0 validates):
+1. Add auth and user model
+2. Implement folder organization (feature 5)
+3. Persist usage analytics (without audio files)
+4. UX design for upload, progress and download
 
-**Fase 2** (cuando Fase 1 esté consolidada):
-1. Desarrollo de app Desktop (Electron/Tauri)
-2. Integración Rekordbox/VirtualDJ
-3. AI Recommendation para sets
+**Phase 2** (when Phase 1 is consolidated):
+1. Desktop app development (Electron/Tauri)
+2. Rekordbox/VirtualDJ integration
+3. AI Recommendation for sets
 4. AI Mix Suggestion

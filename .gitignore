@@ -23,6 +23,13 @@ build/
 *.local
 coverage/
 
+# Next.js
+.next/
+out/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
 # ==============
 # Python / Backend
 # ==============
