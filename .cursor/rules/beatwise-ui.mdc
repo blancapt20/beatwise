@@ -1,0 +1,33 @@
+---
+description: Guía de marca y UI – colores, tipografía, componentes
+globs:
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.html"
+alwaysApply: false
+---
+
+# Beatwise – UI y marca
+
+Usa `docs/MARCA.md` como referencia. Resumen:
+
+**Paleta**:
+- Fondo: `#1C1C1C`
+- Primario/accent: `#FF6F00`
+- Hover/highlights: `#FFD600`
+- Texto: `#FFFFFF` / `#E0E0E0`
+- Estados: éxito `#4CAF50`, error `#E53935`, warning `#FFB300`
+
+**Tipografía**: Bebas Neue (títulos), Roboto (cuerpo). Look moderno y musical.
+
+**Espaciado**: base 8px. Escala 8, 16, 24, 32, 48, 64. Padding botones: 12px vertical × 24px horizontal.
+
+**Radios**: 8px (general), 12px (cards), 6px (secundarios).
+
+**Sombras**: sutiles. Card: `0 4px 12px rgba(0,0,0,0.15)`. Botón hover: `0 6px 20px rgba(255,111,0,0.25)`.
+
+**Iconos**: Lucide o Feather. Lineal, animables.
+
+**Transiciones**: 200–300ms, ease-in-out.

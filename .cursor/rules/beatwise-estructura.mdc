@@ -1,0 +1,39 @@
+---
+description: Estructura de carpetas y código del proyecto
+alwaysApply: true
+---
+
+# Beatwise – Estructura del proyecto
+
+Respeta esta estructura al crear o mover archivos:
+
+```
+beatwise/
+├── .github/workflows/        # CI/CD (ci.yml)
+├── docs/
+├── frontend/                 # Vite + React
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── api/
+│   │   ├── hooks/
+│   │   └── styles/
+│   └── package.json
+├── backend/                  # FastAPI + Python
+│   ├── app/
+│   │   ├── api/
+│   │   ├── services/
+│   │   └── pipeline/
+│   ├── tests/
+│   ├── requirements.txt
+│   └── main.py
+├── .cursor/rules/
+├── .env.example
+└── README.md
+```
+
+**Frontend**: componentes en `components/`, páginas en `pages/`, llamadas API en `api/`, estilos en `styles/`.
+
+**Backend**: rutas en `app/api/`, lógica en `app/services/`, orquestación del pipeline en `app/pipeline/`. Tests en `tests/`.
+
+No crear archivos en la raíz que pertenezcan a frontend o backend. Mantener monorepo: `frontend/` y `backend/` separados.

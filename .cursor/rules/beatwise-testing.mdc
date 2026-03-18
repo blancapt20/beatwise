@@ -1,0 +1,18 @@
+---
+description: Estrategia de testing – unit, integration, E2E
+alwaysApply: true
+---
+
+# Beatwise – Testing
+
+**Docs**: `docs/TESTING.md`
+
+**Frontend**: Vitest + React Testing Library. Tests en `*.test.tsx` o `__tests__/`. Componentes, hooks, utils.
+
+**Backend**: pytest. Units en `tests/`, fixtures en `conftest.py`. Probar validation, normalization, tagging, API endpoints.
+
+**API**: TestClient de FastAPI. Probar POST /upload (200, session_id), GET /status, GET /download. Mock LLM para no gastar API.
+
+**Fixtures**: MP3/WAV pequeños en `backend/tests/fixtures/`. No commitear archivos grandes.
+
+**Cobertura Fase 0**: >60% en services críticos. Nuevo código debe incluir tests cuando aplique.

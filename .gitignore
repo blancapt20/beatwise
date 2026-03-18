@@ -1,0 +1,117 @@
+# ==============
+# Environment
+# ==============
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# ==============
+# Node / Frontend
+# ==============
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm
+dist/
+build/
+.vite/
+*.local
+coverage/
+
+# ==============
+# Python / Backend
+# ==============
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+
+# ==============
+# Temp / Upload / Processed files
+# ==============
+tmp/
+temp/
+/tmp/
+*.tmp
+*.temp
+beatwise-*/
+*.zip
+uploads/
+
+# ==============
+# IDE / Editor
+# ==============
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ==============
+# OS
+# ==============
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==============
+# Logs
+# ==============
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==============
+# Secrets / Keys
+# ==============
+*.pem
+*.key
+secrets/
+.secrets
+
+# ==============
+# Misc
+# ==============
+*.bak
+*.orig
+.cache/

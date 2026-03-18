@@ -1,0 +1,18 @@
+---
+description: CI/CD – pipelines, workflows, deploy
+alwaysApply: true
+---
+
+# Beatwise – CI/CD
+
+**Docs**: `docs/CI-CD.md`
+
+**Pipeline**: Lint → Tests → Build en cada push/PR. Deploy a staging on merge a main.
+
+**Ramas**: main (estable), develop (integración), feature/*, fix/*.
+
+**Secretos** (nunca commitear): API keys, tokens de deploy. Usar GitHub Secrets.
+
+**Pre-push**: ejecutar lint y tests antes de push. Mantener PRs con tests pasando.
+
+**Workflows**: `.github/workflows/ci.yml` para CI. Deploy opcional en Fase 1.

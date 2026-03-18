@@ -1,0 +1,15 @@
+---
+description: Contexto del proyecto Beatwise – qué es, fases y documentación
+alwaysApply: true
+---
+
+# Beatwise – Proyecto
+
+**Qué es**: Capa intermedia para DJs que automatiza: descarga → validación → organización → preparación del set. Tagline: *Know your beats, prep your sets*.
+
+**Fases**:
+- **Fase 0** (actual): Web, sin auth. Subir → procesar (temp) → descargar. Validar valor.
+- **Fase 1**: Auth, organización, tracking. Librería lista para Rekordbox/VirtualDJ.
+- **Fase 2**: Desktop, AI Recommendation, AI Mix, integración Rekordbox.
+
+**Docs**: `docs/PROYECTO.md`, `docs/ARQUITECTURA-FASE-0.md`, `docs/ARQUITECTURA-FASE-1.md`, `docs/ARQUITECTURA-FASE-2.md`.

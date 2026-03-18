@@ -1,0 +1,35 @@
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Explicitly declare text files
+*.md text
+*.mdc text
+*.json text
+*.yml text
+*.yaml text
+*.py text
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.css text
+*.scss text
+*.html text
+*.sh text
+
+# Denote binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.mp3 binary
+*.wav binary
+*.flac binary
+
+# Linguist: exclude generated/large dirs from language stats (optional)
+# node_modules linguist-generated=true
+# dist linguist-generated=true
