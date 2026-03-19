@@ -10,7 +10,7 @@ export function FeaturesSection() {
         "Clipping and distortion detection",
         "RMS level verification",
       ],
-      image: "https://images.unsplash.com/photo-1611532736570-72f94c9c12ac?q=80&w=1080",
+      image: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625?q=80&w=1080",
       imageAlt: "Audio waveform visualization",
     },
     {

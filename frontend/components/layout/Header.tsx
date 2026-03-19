@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export function Header() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -22,7 +23,7 @@ export function Header() {
   return (
     <header className="flex w-full items-center justify-between bg-[var(--color-bg-secondary)] px-12 py-6">
       {/* Logo Area */}
-      <div className="flex items-center gap-3">
+      <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
         <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M2 6C2 4.34315 3.34315 3 5 3H19C20.6569 3 22 4.34315 22 6V18C22 19.6569 20.6569 21 19 21H5C3.34315 21 2 19.6569 2 18V6Z"
@@ -39,7 +40,7 @@ export function Header() {
         <span className="font-display text-[20px] font-semibold text-[var(--color-text-primary)]">
           BeatWise
         </span>
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex items-center gap-8">
@@ -75,9 +76,11 @@ export function Header() {
           )}
         </button>
 
-        <button className="flex h-10 items-center justify-center rounded-[16px] bg-[var(--color-accent-orange)] px-5 font-mono text-[12px] font-semibold text-[var(--color-text-on-accent)] hover:opacity-90 transition-opacity">
-          Get Started
-        </button>
+        <Link href="/upload">
+          <button className="flex h-10 items-center justify-center rounded-[16px] bg-[var(--color-accent-orange)] px-5 font-mono text-[12px] font-semibold text-[var(--color-text-on-accent)] hover:opacity-90 transition-opacity">
+            Get Started
+          </button>
+        </Link>
       </nav>
     </header>
   );

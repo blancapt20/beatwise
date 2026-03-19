@@ -29,6 +29,7 @@ out/
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+.env.local
 
 # ==============
 # Python / Backend
@@ -64,6 +65,10 @@ htmlcov/
 .hypothesis/
 .mypy_cache/
 .ruff_cache/
+
+# Backend specific
+backend/.env
+backend/venv/
 
 # ==============
 # Temp / Upload / Processed files

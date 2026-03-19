@@ -44,12 +44,19 @@ beatwise/
 │   └── package.json
 ├── backend/                  # FastAPI + Python
 │   ├── app/
-│   │   ├── api/
-│   │   ├── services/
-│   │   └── pipeline/
+│   │   ├── main.py
+│   │   ├── core/             # Core utilities (config, dependencies, exceptions)
+│   │   ├── features/         # Feature modules (matches frontend!)
+│   │   │   ├── upload/       # Upload feature
+│   │   │   ├── processing/   # Audio processing feature
+│   │   │   ├── auth/         # Authentication (Phase 1)
+│   │   │   └── library/      # Music library (Phase 1)
+│   │   └── shared/           # Shared utilities across features
+│   │       └── utils/
 │   ├── tests/
-│   ├── requirements.txt
-│   └── main.py
+│   │   ├── features/         # Tests mirror features/
+│   │   └── conftest.py
+│   └── requirements.txt
 ├── .cursor/rules/
 ├── .env.example
 └── README.md
@@ -86,12 +93,25 @@ import { Button, Input } from "@/components/ui";
 import { Hero } from "@/features/landing/components/Hero";
 ```
 
-### Backend
+### Backend (Feature-Based Architecture)
 
-**API (`app/api/`)**: Rutas y endpoints
-**Services (`app/services/`)**: Lógica de negocio
-**Pipeline (`app/pipeline/`)**: Orquestación del procesamiento de audio
+**Features (`app/features/`)**: Módulos de funcionalidad autocontenidos (matches frontend!)
+- Cada feature tiene: `router.py` (API), `service.py` (lógica), `schemas.py` (tipos)
+- Feature-specific code queda dentro de su feature
+- Ejemplos: `upload/`, `processing/`, `auth/`, `library/`
+
+**Core (`app/core/`)**: Utilidades core del sistema
+- `config.py`: Configuración y variables de entorno
+- `dependencies.py`: Dependencias de FastAPI
+- `exceptions.py`: Excepciones personalizadas
+
+**Shared (`app/shared/`)**: Utilidades compartidas entre features
+- `utils/`: Funciones de utilidad
+- Code reutilizable entre múltiples features
+
 **Tests (`tests/`)**: Tests unitarios e integración
+- `features/`: Tests que replican estructura de features/
+- `conftest.py`: Fixtures compartidos
 
 ## Reglas
 

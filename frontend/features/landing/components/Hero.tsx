@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -25,9 +26,11 @@ export function Hero() {
 
       {/* CTAs */}
       <div className="flex items-center gap-4">
-        <button className="flex h-14 items-center justify-center rounded-[16px] bg-[var(--color-accent-orange)] px-8 font-mono text-[13px] font-semibold text-[var(--color-text-on-accent)] hover:opacity-90 transition-opacity">
-          Get Started
-        </button>
+        <Link href="/upload">
+          <button className="flex h-14 items-center justify-center rounded-[16px] bg-[var(--color-accent-orange)] px-8 font-mono text-[13px] font-semibold text-[var(--color-text-on-accent)] hover:opacity-90 transition-opacity">
+            Get Started
+          </button>
+        </Link>
         <button className="flex h-14 items-center justify-center rounded-[16px] border-2 border-[var(--color-text-secondary)] px-8 font-mono text-[13px] font-semibold text-[var(--color-text-primary)] hover:border-[var(--color-text-primary)] transition-colors">
           Watch Demo
         </button>
