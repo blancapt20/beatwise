@@ -16,8 +16,7 @@ export function usePolling(sessionId: string | null, enabled: boolean) {
       setStatus(response);
       setError(null);
 
-      // Stop polling if ready or error
-      if (response.status === 'ready' || response.status === 'error') {
+      if (response.status === 'ready' || response.status === 'validated' || response.status === 'error') {
         setIsPolling(false);
       }
     } catch (err) {
@@ -28,17 +27,22 @@ export function usePolling(sessionId: string | null, enabled: boolean) {
   }, [sessionId]);
 
   useEffect(() => {
-    if (!enabled || !sessionId) {
+    if (!sessionId) {
+      setStatus(null);
+      setError(null);
+      setIsPolling(false);
+      return;
+    }
+
+    if (!enabled) {
       setIsPolling(false);
       return;
     }
 
     setIsPolling(true);
-    
-    // Initial fetch
+
     fetchStatus();
 
-    // Poll every 2 seconds
     const interval = setInterval(fetchStatus, 2000);
 
     return () => clearInterval(interval);

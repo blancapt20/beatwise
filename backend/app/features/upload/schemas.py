@@ -1,6 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
+
+from app.features.processing.schemas import ValidationResult
 
 
 class UploadResponse(BaseModel):
@@ -18,3 +20,4 @@ class StatusResponse(BaseModel):
     files_count: int
     created_at: datetime
     error: Optional[str] = None
+    validation_results: Optional[List[ValidationResult]] = None

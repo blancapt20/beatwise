@@ -12,6 +12,8 @@ export function ProcessingStatus({ status, isPolling }: ProcessingStatusProps) {
 
   const getProgress = () => {
     if (status.status === 'uploaded') return 0;
+    if (status.status === 'validating') return 40;
+    if (status.status === 'validated') return 100;
     if (status.status === 'processing') return 65;
     if (status.status === 'ready') return 100;
     return 0;
@@ -25,6 +27,8 @@ export function ProcessingStatus({ status, isPolling }: ProcessingStatusProps) {
       <div className="flex justify-between items-center">
         <p className="font-mono text-sm font-medium text-[var(--color-text-primary)]">
           {status.status === 'uploaded' && 'Ready to process...'}
+          {status.status === 'validating' && `Validating ${status.files_count} file(s)...`}
+          {status.status === 'validated' && 'Validation complete!'}
           {status.status === 'processing' && `Processing ${status.files_count} file(s)...`}
           {status.status === 'ready' && 'Processing complete!'}
           {status.status === 'error' && 'Processing failed'}

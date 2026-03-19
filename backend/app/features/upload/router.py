@@ -41,7 +41,8 @@ async def get_status(session_id: str):
         status=session.status,
         files_count=session.files_count,
         created_at=session.created_at,
-        error=session.error
+        error=session.error,
+        validation_results=session.validation_results,
     )
 
 
@@ -58,7 +59,7 @@ async def download_files(session_id: str):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     
-    if session.status != "ready":
+    if session.status not in ("ready", "validated"):
         raise HTTPException(status_code=400, detail=f"Session status is {session.status}, cannot download yet")
     
     # Create ZIP

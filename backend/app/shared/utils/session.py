@@ -1,16 +1,17 @@
 import uuid
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 
 class SessionStatus(BaseModel):
     """Session status information."""
     session_id: str
-    status: str  # uploaded, processing, ready, error
+    status: str  # uploaded, validating, validated, processing, ready, error
     files_count: int
     created_at: datetime
     error: Optional[str] = None
+    validation_results: Optional[List[Any]] = None
 
 
 def generate_session_id() -> str:
@@ -45,6 +46,12 @@ def update_session_status(session_id: str, status: str, error: Optional[str] = N
         _sessions[session_id].status = status
         if error:
             _sessions[session_id].error = error
+
+
+def set_validation_results(session_id: str, results: List[Any]):
+    """Store validation results for a session."""
+    if session_id in _sessions:
+        _sessions[session_id].validation_results = results
 
 
 def delete_session(session_id: str):

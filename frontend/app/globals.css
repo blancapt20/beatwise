@@ -92,4 +92,21 @@
   .font-mono {
     font-family: "JetBrains Mono", monospace;
   }
+
+  /* Cursor styles for interactive elements */
+  button,
+  a,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="file"],
+  label[for],
+  select {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [disabled] {
+    cursor: not-allowed;
+  }
 }
