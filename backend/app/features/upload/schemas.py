@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 
-from app.features.processing.schemas import ValidationResult
+from app.features.processing.schemas import QualityReport, ValidationResult
 
 
 class UploadResponse(BaseModel):
@@ -21,3 +21,4 @@ class StatusResponse(BaseModel):
     created_at: datetime
     error: Optional[str] = None
     validation_results: Optional[List[ValidationResult]] = None
+    quality_report: Optional[QualityReport] = None

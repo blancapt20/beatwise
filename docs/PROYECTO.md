@@ -142,6 +142,31 @@ Analysis of two specific tracks to propose how to mix them:
 
 ---
 
+### Phase 3 (Adaptive Quality Intelligence) – Cross-platform
+
+**Objective**: make quality decisions context-aware according to real playback environment.
+
+**Platform**: Web + Desktop (builds on Phase 2).
+
+**Scope**:
+- Add profile-based quality evaluation:
+  - `Streaming Safe`
+  - `Club Standard`
+  - `Festival / Aggressive`
+  - `Custom`
+- In set creation flow, ask:
+  - **"Where will you play this?"**
+  - Options: `Club`, `Festival`, `Streaming`, `Radio`
+- Internally map play context to profile thresholds (true peak, clipping %, loudness targets).
+- Keep raw analysis metrics immutable and apply profile logic as an interpretation layer.
+
+**Value**:
+- More accurate warnings for each scenario
+- Better trust in recommendations
+- Less false "critical" alerts for tracks that are acceptable in some environments
+
+---
+
 ## Storage
 
 | Aspect | Phase 0 | Phase 1 | Phase 2 |
@@ -261,6 +286,15 @@ User → Launcher/Desktop App
 | AI Recommendations / Mix | ❌ | ❌ | ✅ |
 | Rekordbox/VirtualDJ Integration | ❌ | ❌ | ✅ |
 | Cloud (S3, etc.) | No | Not necessary | No |
+
+### Future Extension (Phase 3)
+
+| Feature | Phase 3 (Adaptive Quality Intelligence) |
+|---------|:---------------------------------------:|
+| Context-aware quality profiles | ✅ |
+| "Where will you play?" workflow | ✅ |
+| User-defined threshold presets | ✅ |
+| Profile versioning per session | ✅ |
 
 ---
 

@@ -13,6 +13,8 @@ export function ProcessingStatus({ status, isPolling }: ProcessingStatusProps) {
   const getProgress = () => {
     if (status.status === 'uploaded') return 0;
     if (status.status === 'validating') return 40;
+    if (status.status === 'analyzing') return 75;
+    if (status.status === 'analyzed') return 100;
     if (status.status === 'validated') return 100;
     if (status.status === 'processing') return 65;
     if (status.status === 'ready') return 100;
@@ -28,6 +30,8 @@ export function ProcessingStatus({ status, isPolling }: ProcessingStatusProps) {
         <p className="font-mono text-sm font-medium text-[var(--color-text-primary)]">
           {status.status === 'uploaded' && 'Ready to process...'}
           {status.status === 'validating' && `Validating ${status.files_count} file(s)...`}
+          {status.status === 'analyzing' && `Analyzing quality for ${status.files_count} file(s)...`}
+          {status.status === 'analyzed' && 'Quality analysis complete!'}
           {status.status === 'validated' && 'Validation complete!'}
           {status.status === 'processing' && `Processing ${status.files_count} file(s)...`}
           {status.status === 'ready' && 'Processing complete!'}

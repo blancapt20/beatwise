@@ -12,7 +12,7 @@ import {
   useUpload,
   usePolling,
 } from '@/features/upload';
-import type { ValidationResult } from '@/features/upload';
+import type { FileQualityReport, ValidationResult } from '@/features/upload';
 
 export default function UploadPage() {
   const {
@@ -47,8 +47,10 @@ export default function UploadPage() {
 
   const canStartProcessing = files.length > 0 && !isUploading && !sessionId;
   const isValidated = status?.status === 'validated';
+  const isAnalyzed = status?.status === 'analyzed';
   const isReady = status?.status === 'ready';
-  const showResults = sessionId && (isValidated || isReady) && status?.validation_results;
+  const showResults = sessionId && (isValidated || isAnalyzed || isReady) && status?.validation_results;
+  const hasQualityData = (status?.quality_report?.files?.length ?? 0) > 0;
 
   const validationResults: ValidationResult[] = (status?.validation_results ?? []).map((r) => ({
     file_name: r.file_name,
@@ -56,6 +58,10 @@ export default function UploadPage() {
     properties: r.properties,
     issues: r.issues,
   }));
+  const qualityByFile = new Map<string, FileQualityReport>(
+    (status?.quality_report?.files ?? []).map((item) => [item.file_name, item] as const),
+  );
+  const selectedQuality = selectedResult ? qualityByFile.get(selectedResult.file_name) ?? null : null;
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-[var(--color-bg-primary)]">
@@ -77,8 +83,17 @@ export default function UploadPage() {
         {/* === VALIDATION RESULTS VIEW === */}
         {showResults ? (
           <div className="flex flex-col gap-8 w-full max-w-[1200px]">
+            {!hasQualityData && (
+              <div className="rounded-lg border border-[#FFB300] bg-[#FFB3001A] px-4 py-3">
+                <p className="font-mono text-sm text-[#E0E0E0]">
+                  Quality analysis data is not available for this session yet. Restart the backend
+                  with Sprint 3 code and upload again to see LUFS, true peak, clipping, and spectrum.
+                </p>
+              </div>
+            )}
             <ValidationResultsTable
               results={validationResults}
+              qualityReport={status?.quality_report}
               onRowClick={setSelectedResult}
             />
 
@@ -94,7 +109,9 @@ export default function UploadPage() {
             </div>
 
             <ValidationDetailDialog
+              sessionId={sessionId!}
               result={selectedResult}
+              qualityReport={selectedQuality}
               onClose={() => setSelectedResult(null)}
             />
           </div>
@@ -122,7 +139,9 @@ export default function UploadPage() {
                 <ProcessingStatus status={status} isPolling={isProcessing} />
                 <div className="flex items-center justify-center gap-2 text-[var(--color-text-secondary)] font-mono text-sm">
                   <div className="animate-spin h-4 w-4 border-2 border-[var(--color-accent-orange)] border-t-transparent rounded-full" />
-                  Validating your files...
+                  {status?.status === 'analyzing'
+                    ? 'Analyzing your audio quality...'
+                    : 'Validating your files...'}
                 </div>
               </div>
             )}

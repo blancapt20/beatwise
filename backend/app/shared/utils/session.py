@@ -7,11 +7,12 @@ from pydantic import BaseModel
 class SessionStatus(BaseModel):
     """Session status information."""
     session_id: str
-    status: str  # uploaded, validating, validated, processing, ready, error
+    status: str  # uploaded, validating, analyzed, processing, ready, error
     files_count: int
     created_at: datetime
     error: Optional[str] = None
     validation_results: Optional[List[Any]] = None
+    quality_report: Optional[Dict[str, Any]] = None
 
 
 def generate_session_id() -> str:
@@ -52,6 +53,12 @@ def set_validation_results(session_id: str, results: List[Any]):
     """Store validation results for a session."""
     if session_id in _sessions:
         _sessions[session_id].validation_results = results
+
+
+def set_quality_report(session_id: str, report: Dict[str, Any]):
+    """Store quality report for a session."""
+    if session_id in _sessions:
+        _sessions[session_id].quality_report = report
 
 
 def delete_session(session_id: str):

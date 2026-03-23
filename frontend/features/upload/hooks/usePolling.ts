@@ -16,7 +16,12 @@ export function usePolling(sessionId: string | null, enabled: boolean) {
       setStatus(response);
       setError(null);
 
-      if (response.status === 'ready' || response.status === 'validated' || response.status === 'error') {
+      if (
+        response.status === 'ready' ||
+        response.status === 'validated' ||
+        response.status === 'analyzed' ||
+        response.status === 'error'
+      ) {
         setIsPolling(false);
       }
     } catch (err) {

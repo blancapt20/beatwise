@@ -4,6 +4,15 @@ export { ProcessingStatus } from './components/ProcessingStatus';
 export { DownloadButton } from './components/DownloadButton';
 export { ValidationResultsTable } from './components/ValidationResultsTable';
 export { ValidationDetailDialog } from './components/ValidationDetailDialog';
+export { SpectrumChart } from './components/SpectrumChart';
 export { useUpload } from './hooks/useUpload';
 export { usePolling } from './hooks/usePolling';
-export type { ValidationResult, AudioProperties } from './types';
+export type {
+  AudioProperties,
+  FileQualityReport,
+  QualityAnalysis,
+  QualityReport,
+  QualitySummary,
+  SpectrumData,
+  ValidationResult,
+} from './types';

@@ -133,6 +133,47 @@ Differentiation with creative intelligence: generate sets, recommend mixes and w
 
 ---
 
+## Adaptive Quality Profiles (Next Scope)
+
+To make quality analysis context-aware, BeatWise can apply thresholds dynamically based on intended playback environment.
+
+### UX Approaches
+
+1. **Preset mode** (explicit profile selected by user):
+   - `Streaming Safe`
+   - `Club Standard`
+   - `Festival / Aggressive`
+   - `Custom`
+
+2. **Intent mode** (task-oriented input in set workflow):
+   - Ask: **"Where will you play this?"**
+   - Options: `Club`, `Festival`, `Streaming`, `Radio`
+   - Internally map each option to a quality profile
+
+Recommended rollout: start with intent mode in set creation (simpler UX), then expose advanced preset/custom controls.
+
+### Architecture Impact
+
+- Add `quality_profile` to session/set metadata.
+- Resolve effective thresholds per session before quality analysis starts.
+- Store both:
+  - raw metrics (`true_peak_db`, `clipping_percentage`, LUFS, etc.)
+  - profile-specific evaluation (`warnings`, `severity`, recommendations)
+- Keep analysis deterministic by saving profile version used for each session.
+
+### Example Mapping (Initial)
+
+| Play Context | Internal Profile | Goal |
+|--------------|------------------|------|
+| Streaming | Streaming Safe | Conservative headroom and clipping tolerance |
+| Club | Club Standard | Balanced loudness with safety margins |
+| Festival | Festival / Aggressive | Higher loudness tolerance with explicit risk warnings |
+| Radio | Streaming Safe (v1) | Clean/transmission-friendly output |
+
+This extension preserves current Phase 2 capabilities while improving practical relevance for real-world DJ workflows.
+
+---
+
 ## Suggested Tech Stack
 
 - **Electron** or **Tauri** (Rust) for cross-platform app

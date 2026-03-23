@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ValidationResult } from "../types";
+import { useState } from "react";
+import { apiClient } from "@/lib/api/client";
+import { FileQualityReport, SpectrumData, ValidationResult } from "../types";
+import { SpectrumChart } from "./SpectrumChart";
 
 interface ValidationDetailDialogProps {
+  sessionId: string;
   result: ValidationResult | null;
+  qualityReport?: FileQualityReport | null;
   onClose: () => void;
 }
 
@@ -13,6 +18,14 @@ const ISSUE_EXPLANATIONS: Record<string, string> = {
   corrupted: "The audio file could not be read or decoded. It may be damaged or truncated.",
   unsupported_format: "The file format is not supported. Only MP3, WAV, and FLAC are accepted.",
   file_not_found: "The file was not found on disk.",
+  too_quiet: "The file loudness is below -18 LUFS and may sound weak in a set.",
+  too_loud: "The file loudness is above -8 LUFS and may distort in playback.",
+  minor_clipping: "Slight clipping detected (0.01% to 0.1% clipped samples).",
+  moderate_clipping: "Clipping is clearly visible (0.1% to 0.5% clipped samples).",
+  major_clipping: "Heavy clipping detected (>0.5% clipped samples). Source quality may be compromised.",
+  low_headroom: "Low headroom (-1.0 to -0.3 dBTP). May clip on large systems.",
+  very_hot_signal: "Very hot signal (-0.3 to 0.0 dBTP). High risk of distortion.",
+  tp_overs: "Clipping detected (>0.0 dBTP true peak).",
 };
 
 function formatDurationLong(seconds: number): string {
@@ -25,8 +38,16 @@ function formatSampleRate(hz: number): string {
   return `${hz.toLocaleString()} Hz`;
 }
 
-export function ValidationDetailDialog({ result, onClose }: ValidationDetailDialogProps) {
+export function ValidationDetailDialog({
+  sessionId,
+  result,
+  qualityReport,
+  onClose,
+}: ValidationDetailDialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [spectrum, setSpectrum] = useState<SpectrumData | null>(null);
+  const [isLoadingSpectrum, setIsLoadingSpectrum] = useState(false);
+  const [spectrumError, setSpectrumError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -41,6 +62,40 @@ export function ValidationDetailDialog({ result, onClose }: ValidationDetailDial
       document.body.style.overflow = "";
     };
   }, [result, onClose]);
+
+  useEffect(() => {
+    if (!result) {
+      setSpectrum(null);
+      setSpectrumError(null);
+      setIsLoadingSpectrum(false);
+      return;
+    }
+
+    let isCancelled = false;
+    setIsLoadingSpectrum(true);
+    setSpectrumError(null);
+    setSpectrum(null);
+
+    apiClient
+      .getSpectrum(sessionId, result.file_name)
+      .then((response) => {
+        if (!isCancelled) {
+          setSpectrum(response);
+          setIsLoadingSpectrum(false);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!isCancelled) {
+          const message = err instanceof Error ? err.message : "Failed to load spectrum.";
+          setSpectrumError(message);
+          setIsLoadingSpectrum(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [sessionId, result]);
 
   if (!result) return null;
 
@@ -57,6 +112,15 @@ export function ValidationDetailDialog({ result, onClose }: ValidationDetailDial
         { label: "Channels", value: `${props.channels} (${props.channels === 1 ? "Mono" : "Stereo"})` },
         { label: "Bitrate (Declared)", value: `${props.bitrate_declared} kbps` },
         { label: "Bitrate (Real)", value: `${props.bitrate_real} kbps`, highlight: isFake },
+      ]
+    : [];
+  const qualityRows = qualityReport
+    ? [
+        { label: "RMS", value: `${qualityReport.quality.rms_db.toFixed(2)} dBFS` },
+        { label: "LUFS", value: `${qualityReport.quality.lufs.toFixed(2)} LUFS` },
+        { label: "True Peak", value: `${qualityReport.quality.true_peak_db.toFixed(2)} dBFS` },
+        { label: "Clipped Samples", value: qualityReport.quality.clipped_samples.toLocaleString() },
+        { label: "Clipping", value: `${qualityReport.quality.clipping_percentage.toFixed(4)}%` },
       ]
     : [];
 
@@ -142,19 +206,42 @@ export function ValidationDetailDialog({ result, onClose }: ValidationDetailDial
           </div>
         )}
 
-        {/* Spectrum placeholder */}
+        {/* Quality */}
+        {qualityRows.length > 0 && (
+          <div className="flex flex-col gap-4 px-6 pb-5">
+            <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#FFD600]">
+              QUALITY ANALYSIS
+            </h3>
+            <div className="flex flex-col">
+              {qualityRows.map((row, i) => (
+                <div
+                  key={row.label}
+                  className={`flex items-center py-2.5 ${i < qualityRows.length - 1 ? "border-b border-[#3A3A3A]" : ""}`}
+                >
+                  <span className="w-40 font-mono text-sm text-[#6B6B6B]">{row.label}</span>
+                  <span className="font-mono text-sm text-white">{row.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Spectrum */}
         <div className="flex flex-col gap-3 px-6 pb-5">
-          <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#6B6B6B]">
+          <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#FFD600]">
             FREQUENCY SPECTRUM
           </h3>
-          <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-[#3A3A3A] bg-[#1C1C1C] py-10">
-            <svg className="h-10 w-10 text-[#3A3A3A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2 12h2l3-9 3 18 3-12 3 6 2-3h4" />
-            </svg>
-            <p className="font-mono text-xs italic text-[#6B6B6B]">
-              Available after quality analysis (Sprint 3)
-            </p>
-          </div>
+          {isLoadingSpectrum && (
+            <div className="flex min-h-[180px] items-center justify-center rounded-lg border border-[#3A3A3A] bg-[#1C1C1C]">
+              <p className="font-mono text-xs italic text-[#6B6B6B]">Loading spectrum...</p>
+            </div>
+          )}
+          {!isLoadingSpectrum && spectrumError && (
+            <div className="flex min-h-[180px] items-center justify-center rounded-lg border border-[#E53935] bg-[#E5393510] px-4">
+              <p className="text-center font-mono text-xs text-[#E0E0E0]">{spectrumError}</p>
+            </div>
+          )}
+          {!isLoadingSpectrum && !spectrumError && spectrum && <SpectrumChart data={spectrum} />}
         </div>
 
         {/* Footer */}

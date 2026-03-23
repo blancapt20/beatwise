@@ -43,7 +43,7 @@ backend/
 ### Step 3: Clipping Detection
 - [ ] Implement `detect_clipping(file_path)` → count of clipped samples
 - [ ] Implement `calculate_true_peak(file_path)` → max peak level
-- [ ] Flag files with >0 dBFS peaks or >1% clipped samples
+- [ ] Flag clipping/headroom using tiered thresholds (clipping % + true peak dBTP)
 
 ### Step 4: Quality Report Generation
 - [ ] Create `QualityReport` model
@@ -100,14 +100,16 @@ class FileQualityReport(BaseModel):
 - **Too Loud**: > -8 LUFS → Warning
 
 ### Clipping
-- **No Clipping**: 0 clipped samples
-- **Minor**: < 0.1% clipped → Warning
-- **Major**: > 0.1% clipped → Error
+- **No Clipping**: 0% to 0.01% clipped samples
+- **Minor**: >0.01% to 0.1% clipped → Warning (`minor_clipping`)
+- **Moderate**: >0.1% to 0.5% clipped → Warning (`moderate_clipping`)
+- **Major**: >0.5% clipped → Error (`major_clipping`)
 
 ### True Peak
-- **Safe**: < -1 dBFS
-- **Borderline**: -1 to 0 dBFS → Warning
-- **Clipping**: > 0 dBFS → Error
+- **Safe**: <= -1.0 dBTP
+- **Borderline**: >-1.0 to -0.3 dBTP → Warning (`low_headroom`)
+- **Very Hot**: >-0.3 to 0.0 dBTP → Warning (`very_hot_signal`)
+- **Clipping**: >0.0 dBTP → Error (`tp_overs`)
 
 ---
 
@@ -131,13 +133,13 @@ class FileQualityReport(BaseModel):
         "quality": {
           "rms_db": -14.2,
           "lufs": -13.8,
-          "true_peak_db": -0.5,
+          "true_peak_db": -0.2,
           "clipped_samples": 245,
-          "clipping_percentage": 0.02,
+          "clipping_percentage": 0.12,
           "has_clipping": true
         },
-        "warnings": ["minor_clipping"],
-        "recommendations": ["check_source"]
+        "warnings": ["moderate_clipping", "very_hot_signal"],
+        "recommendations": ["use_limiter", "increase_headroom"]
       }
     ]
   }

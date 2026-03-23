@@ -1,11 +1,17 @@
 import logging
+from copy import deepcopy
 from typing import List
 from fastapi import UploadFile, HTTPException
 
 from app.shared.utils.session import (
-    generate_session_id, create_session, update_session_status, set_validation_results
+    create_session,
+    generate_session_id,
+    set_quality_report,
+    set_validation_results,
+    update_session_status,
 )
 from app.shared.utils.file_manager import save_uploaded_files, validate_file_extension, get_session_dir
+from app.features.processing.quality import generate_quality_report
 from app.features.processing.validation import validate_session_files
 from app.core.config import settings
 
@@ -16,7 +22,7 @@ class UploadService:
     """Service for handling file uploads and validation."""
 
     async def process_upload(self, files: List[UploadFile]) -> dict:
-        """Upload files, then run audio validation."""
+        """Upload files, run validation, then quality analysis."""
 
         if len(files) > settings.max_files_per_session:
             raise HTTPException(
@@ -38,18 +44,41 @@ class UploadService:
         try:
             session_dir = get_session_dir(session_id)
             results = validate_session_files(session_dir)
-            set_validation_results(session_id, [r.model_dump() for r in results])
-            update_session_status(session_id, "validated")
+            serialized_results = [r.model_dump() for r in results]
+            set_validation_results(session_id, serialized_results)
+
+            update_session_status(session_id, "analyzing")
+            quality_report = generate_quality_report(session_id, session_dir)
+            serialized_report = quality_report.model_dump()
+            set_quality_report(session_id, serialized_report)
+
+            merged_results = self._merge_quality_warnings(serialized_results, serialized_report)
+            set_validation_results(session_id, merged_results)
+            update_session_status(session_id, "analyzed")
         except Exception as e:
-            logger.exception("Validation failed for session %s", session_id)
+            logger.exception("Validation/analysis failed for session %s", session_id)
             update_session_status(session_id, "error", error=str(e))
 
         return {
             "session_id": session_id,
             "files_count": len(saved_files),
-            "status": "validated",
-            "message": f"Successfully uploaded and validated {len(saved_files)} file(s)"
+            "status": "analyzed",
+            "message": f"Successfully uploaded and analyzed {len(saved_files)} file(s)",
         }
+
+    @staticmethod
+    def _merge_quality_warnings(validation_results: List[dict], quality_report: dict) -> List[dict]:
+        """Merge quality warnings into validation issues by file name."""
+        merged = deepcopy(validation_results)
+        quality_by_file = {
+            item["file_name"]: item.get("warnings", [])
+            for item in quality_report.get("files", [])
+        }
+        for item in merged:
+            current = set(item.get("issues", []))
+            warnings = quality_by_file.get(item.get("file_name"), [])
+            item["issues"] = sorted(current.union(warnings))
+        return merged
 
 
 upload_service = UploadService()

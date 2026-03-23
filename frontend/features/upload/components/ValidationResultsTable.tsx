@@ -1,14 +1,23 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ValidationResult } from "../types";
+import { QualityReport, ValidationResult } from "../types";
 
 interface ValidationResultsTableProps {
   results: ValidationResult[];
+  qualityReport?: QualityReport | null;
   onRowClick: (result: ValidationResult) => void;
 }
 
-type SortKey = "file_name" | "format" | "duration" | "bitrate_declared" | "bitrate_real";
+type SortKey =
+  | "file_name"
+  | "format"
+  | "duration"
+  | "bitrate_declared"
+  | "bitrate_real"
+  | "lufs"
+  | "true_peak_db"
+  | "clipping_percentage";
 type SortDir = "asc" | "desc";
 
 const FORMAT_COLORS: Record<string, string> = {
@@ -16,6 +25,13 @@ const FORMAT_COLORS: Record<string, string> = {
   wav: "bg-[#00BCD4]",
   flac: "bg-[#E0E0E0] text-[#1C1C1C]",
 };
+const ERROR_ISSUES = new Set([
+  "corrupted",
+  "unsupported_format",
+  "file_not_found",
+  "major_clipping",
+  "tp_overs",
+]);
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -32,9 +48,21 @@ function isFakeBitrate(declared: number, real: number): boolean {
   return Math.abs(declared - real) / declared > 0.2;
 }
 
-export function ValidationResultsTable({ results, onRowClick }: ValidationResultsTableProps) {
+export function ValidationResultsTable({
+  results,
+  qualityReport,
+  onRowClick,
+}: ValidationResultsTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>("file_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const qualityByFile = useMemo(
+    () =>
+      new Map(
+        (qualityReport?.files ?? []).map((item) => [item.file_name, item.quality] as const),
+      ),
+    [qualityReport],
+  );
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -71,16 +99,34 @@ export function ValidationResultsTable({ results, onRowClick }: ValidationResult
           av = a.properties?.bitrate_real ?? 0;
           bv = b.properties?.bitrate_real ?? 0;
           break;
+        case "lufs":
+          av = qualityByFile.get(a.file_name)?.lufs ?? Number.NEGATIVE_INFINITY;
+          bv = qualityByFile.get(b.file_name)?.lufs ?? Number.NEGATIVE_INFINITY;
+          break;
+        case "true_peak_db":
+          av = qualityByFile.get(a.file_name)?.true_peak_db ?? Number.NEGATIVE_INFINITY;
+          bv = qualityByFile.get(b.file_name)?.true_peak_db ?? Number.NEGATIVE_INFINITY;
+          break;
+        case "clipping_percentage":
+          av = qualityByFile.get(a.file_name)?.clipping_percentage ?? 0;
+          bv = qualityByFile.get(b.file_name)?.clipping_percentage ?? 0;
+          break;
       }
       if (av < bv) return sortDir === "asc" ? -1 : 1;
       if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
     });
     return copy;
-  }, [results, sortKey, sortDir]);
+  }, [results, sortKey, sortDir, qualityByFile]);
 
-  const warnings = results.filter((r) => r.is_valid && r.issues.length > 0).length;
-  const errors = results.filter((r) => !r.is_valid).length;
+  const getIssueSeverity = (issues: string[]): "error" | "warning" | "none" => {
+    if (issues.some((issue) => ERROR_ISSUES.has(issue))) return "error";
+    if (issues.length > 0) return "warning";
+    return "none";
+  };
+
+  const warnings = results.filter((r) => r.is_valid && getIssueSeverity(r.issues) === "warning").length;
+  const errors = results.filter((r) => !r.is_valid || getIssueSeverity(r.issues) === "error").length;
 
   const SortArrow = ({ column }: { column: SortKey }) => {
     if (sortKey !== column) return null;
@@ -116,7 +162,7 @@ export function ValidationResultsTable({ results, onRowClick }: ValidationResult
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="overflow-x-auto rounded-xl bg-[var(--color-bg-elevated)] shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-        <table className="w-full min-w-[900px]">
+        <table className="w-full min-w-[1200px]">
           <thead>
             <tr className="border-b border-[#6B6B6B]">
               <HeaderCell label="" className="w-12" />
@@ -126,16 +172,21 @@ export function ValidationResultsTable({ results, onRowClick }: ValidationResult
               <HeaderCell label="Sample Rate" className="w-28 text-right" />
               <HeaderCell label="Bitrate (Declared)" column="bitrate_declared" className="w-36 text-right" />
               <HeaderCell label="Bitrate (Real)" column="bitrate_real" className="w-32 text-right" />
+              <HeaderCell label="LUFS" column="lufs" className="w-24 text-right" />
+              <HeaderCell label="True Peak" column="true_peak_db" className="w-28 text-right" />
+              <HeaderCell label="Clipping %" column="clipping_percentage" className="w-24 text-right" />
               <HeaderCell label="Issues" className="min-w-[120px]" />
             </tr>
           </thead>
           <tbody>
             {sorted.map((result) => {
-              const hasWarning = result.is_valid && result.issues.length > 0;
-              const hasError = !result.is_valid;
+              const issueSeverity = getIssueSeverity(result.issues);
+              const hasWarning = result.is_valid && issueSeverity === "warning";
+              const hasError = !result.is_valid || issueSeverity === "error";
               const fake =
                 result.properties &&
                 isFakeBitrate(result.properties.bitrate_declared, result.properties.bitrate_real);
+              const quality = qualityByFile.get(result.file_name);
 
               let borderClass = "border-l-3 border-l-transparent";
               if (hasError) borderClass = "border-l-3 border-l-[#E53935]";
@@ -199,12 +250,47 @@ export function ValidationResultsTable({ results, onRowClick }: ValidationResult
                     {result.properties ? `${result.properties.bitrate_real} kbps` : "—"}
                   </td>
 
+                  {/* LUFS */}
+                  <td className="px-3 py-3 text-right font-mono text-sm text-[#E0E0E0]">
+                    {quality ? `${quality.lufs.toFixed(1)} LUFS` : "—"}
+                  </td>
+
+                  {/* True Peak */}
+                  <td
+                    className={`px-3 py-3 text-right font-mono text-sm ${
+                      quality && quality.true_peak_db > 0
+                        ? "font-semibold text-[#E53935]"
+                        : quality && quality.true_peak_db > -0.3
+                          ? "text-[#FF6F00]"
+                          : quality && quality.true_peak_db > -1
+                            ? "text-[#FFB300]"
+                            : "text-[#E0E0E0]"
+                    }`}
+                  >
+                    {quality ? `${quality.true_peak_db.toFixed(1)} dBFS` : "—"}
+                  </td>
+
+                  {/* Clipping percentage */}
+                  <td
+                    className={`px-3 py-3 text-right font-mono text-sm ${
+                      quality && quality.clipping_percentage > 0.5
+                        ? "font-semibold text-[#E53935]"
+                        : quality && quality.clipping_percentage > 0.1
+                          ? "text-[#FF6F00]"
+                          : quality && quality.clipping_percentage > 0.01
+                            ? "text-[#FFB300]"
+                          : "text-[#4CAF50]"
+                    }`}
+                  >
+                    {quality ? `${quality.clipping_percentage.toFixed(4)}%` : "—"}
+                  </td>
+
                   {/* Issues */}
                   <td className="px-3 py-3">
                     {result.issues.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {result.issues.map((issue) => {
-                          const isError = issue === "corrupted" || issue === "unsupported_format";
+                          const isError = ERROR_ISSUES.has(issue);
                           return (
                             <span
                               key={issue}
