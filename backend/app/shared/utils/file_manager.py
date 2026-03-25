@@ -4,6 +4,7 @@ import zipfile
 from pathlib import Path
 from typing import List
 from fastapi import UploadFile
+from fastapi import HTTPException
 
 from app.core.config import settings
 
@@ -29,9 +30,24 @@ async def save_uploaded_files(session_id: str, files: List[UploadFile]) -> List[
         file_path = session_dir / file.filename
         
         # Save file
-        with open(file_path, "wb") as f:
-            content = await file.read()
-            f.write(content)
+        try:
+            with open(file_path, "wb") as f:
+                content = await file.read()
+                f.write(content)
+        except OSError as exc:
+            # Windows/Linux "disk full" error code.
+            if exc.errno == 28:
+                # Best-effort cleanup for partially written file.
+                try:
+                    if file_path.exists():
+                        file_path.unlink()
+                except OSError:
+                    pass
+                raise HTTPException(
+                    status_code=507,
+                    detail="Upload storage is full. Please free disk space in the temp directory and retry.",
+                ) from exc
+            raise
         
         saved_files.append(file.filename)
     
@@ -62,3 +78,19 @@ def validate_file_extension(filename: str) -> bool:
     """Check if file has an allowed extension."""
     ext = Path(filename).suffix.lower()
     return ext in settings.allowed_extensions
+
+
+def remove_session_file(session_id: str, file_name: str) -> bool:
+    """Remove a file from a session directory. Returns True if removed."""
+    session_dir = get_session_dir(session_id).resolve()
+    target_path = (session_dir / file_name).resolve()
+
+    # Prevent path traversal by forcing requested file inside session directory.
+    if not str(target_path).startswith(str(session_dir)):
+        return False
+
+    if not target_path.exists() or not target_path.is_file():
+        return False
+
+    target_path.unlink()
+    return True

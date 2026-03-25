@@ -81,8 +81,16 @@ export interface UploadResponse {
   message: string;
 }
 
+export interface RemoveFileResponse {
+  session_id: string;
+  file_name: string;
+  files_count: number;
+  session_deleted: boolean;
+  message: string;
+}
+
 export interface UploadOptions {
-  onUploadProgress?: (progress: number) => void;
+  onUploadProgress?: (progress: number, loadedBytes: number, totalBytes: number) => void;
 }
 
 export interface StatusResponse {
@@ -131,7 +139,7 @@ export const apiClient = {
         xhr.upload.onprogress = (event: ProgressEvent<EventTarget>) => {
           if (!event.lengthComputable || !options?.onUploadProgress) return;
           const progress = Math.round((event.loaded / event.total) * 100);
-          options.onUploadProgress(progress);
+          options.onUploadProgress(progress, event.loaded, event.total);
         };
 
         xhr.onload = () => {
@@ -145,7 +153,7 @@ export const apiClient = {
           }
 
           if (xhr.status >= 200 && xhr.status < 300) {
-            options?.onUploadProgress?.(100);
+            options?.onUploadProgress?.(100, 1, 1);
             resolve(payload as UploadResponse);
             return;
           }
@@ -181,6 +189,21 @@ export const apiClient = {
   async getStatus(sessionId: string): Promise<StatusResponse> {
     const response = await fetch(`${API_BASE_URL}/api/status/${encodeURIComponent(sessionId)}`);
     return parseResponse<StatusResponse>(response);
+  },
+
+  async processSession(sessionId: string): Promise<UploadResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/process/${encodeURIComponent(sessionId)}`, {
+      method: 'POST',
+    });
+    return parseResponse<UploadResponse>(response);
+  },
+
+  async removeSessionFile(sessionId: string, fileName: string): Promise<RemoveFileResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/api/session/${encodeURIComponent(sessionId)}/file/${encodeURIComponent(fileName)}`,
+      { method: 'DELETE' },
+    );
+    return parseResponse<RemoveFileResponse>(response);
   },
 
   getDownloadUrl(sessionId: string): string {

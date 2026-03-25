@@ -58,7 +58,10 @@ backend/
 ## Endpoints
 
 ### POST /api/upload
-Upload audio files (MP3, WAV, FLAC)
+Upload audio files (MP3, WAV, FLAC) and create a session (status: `uploaded`)
+
+### POST /api/process/{session_id}
+Start validation + quality analysis for a previously uploaded session
 
 ### GET /api/status/{session_id}
 Check processing status

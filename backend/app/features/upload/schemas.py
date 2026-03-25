@@ -13,6 +13,15 @@ class UploadResponse(BaseModel):
     message: str
 
 
+class RemoveFileResponse(BaseModel):
+    """Response for removing an uploaded file from session."""
+    session_id: str
+    file_name: str
+    files_count: int
+    session_deleted: bool = False
+    message: str
+
+
 class StatusResponse(BaseModel):
     """Response for status check."""
     session_id: str

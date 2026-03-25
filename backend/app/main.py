@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
+import tempfile
 
 from app.core.config import settings
 from app.features.upload.router import router as upload_router
@@ -25,6 +27,17 @@ app.add_middleware(
 
 # Include routers
 app.include_router(upload_router)
+
+
+@app.on_event("startup")
+async def configure_runtime_temp_dirs():
+    """
+    Ensure upload temp directory exists and use it as process temp.
+    This helps avoid multipart parsing failures when OS temp is full.
+    """
+    temp_root = Path(settings.temp_dir)
+    temp_root.mkdir(parents=True, exist_ok=True)
+    tempfile.tempdir = str(temp_root)
 
 
 @app.get("/")

@@ -75,7 +75,7 @@ export function UploadZone({ onFilesSelected, disabled }: UploadZoneProps) {
 
       {/* Subtitle */}
       <p className="font-mono text-sm text-[var(--color-text-secondary)]">
-        Supported: MP3, WAV, FLAC • Max 50MB per file • Up to 200 files
+        Auto-upload starts instantly • MP3, WAV, FLAC • Max 50MB per file • Up to 200 files
       </p>
     </div>
   );

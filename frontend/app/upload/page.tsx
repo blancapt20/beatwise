@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Header } from '@/components/layout';
+import { apiClient } from '@/lib/api/client';
 import {
   UploadZone,
   FileList,
@@ -19,24 +20,37 @@ export default function UploadPage() {
     files,
     sessionId,
     isUploading,
-    uploadProgress,
     uploadError,
-    addFiles,
+    addFilesAndUpload,
     removeFile,
-    uploadFiles,
     reset,
   } = useUpload();
 
   const [isProcessing, setIsProcessing] = useState(false);
   const { status } = usePolling(sessionId, isProcessing);
   const [selectedResult, setSelectedResult] = useState<ValidationResult | null>(null);
+  const [processError, setProcessError] = useState<string | null>(null);
 
-  const handleStartProcessing = async () => {
+  const handleFilesSelected = async (selectedFiles: File[]) => {
+    if (selectedFiles.length === 0) return;
     try {
-      await uploadFiles();
-      setIsProcessing(true);
+      setProcessError(null);
+      await addFilesAndUpload(selectedFiles);
     } catch (error) {
       console.error('Upload failed:', error);
+    }
+  };
+
+  const handleStartProcessing = async () => {
+    if (!sessionId || isUploading) return;
+    setProcessError(null);
+    try {
+      await apiClient.processSession(sessionId);
+      setIsProcessing(true);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to start processing';
+      setProcessError(message);
+      setIsProcessing(false);
     }
   };
 
@@ -44,9 +58,10 @@ export default function UploadPage() {
     reset();
     setIsProcessing(false);
     setSelectedResult(null);
+    setProcessError(null);
   };
 
-  const canStartProcessing = files.length > 0 && !isUploading && !sessionId;
+  const canStartProcessing = !!sessionId && !isUploading && !isProcessing;
   const isValidated = status?.status === 'validated';
   const isAnalyzed = status?.status === 'analyzed';
   const isReady = status?.status === 'ready';
@@ -82,7 +97,7 @@ export default function UploadPage() {
           <p className="font-mono text-base text-[var(--color-text-secondary)] max-w-2xl">
             {showResults
               ? 'Your files have been validated. Review the results below before downloading.'
-              : 'Drop your audio files and we\'ll validate, normalize, and prepare them for your DJ set'}
+              : 'Drop or select your audio files to auto-upload instantly, then start processing when all tracks are ready.'}
           </p>
         </div>
 
@@ -124,44 +139,51 @@ export default function UploadPage() {
         ) : (
           /* === UPLOAD VIEW === */
           <div className="flex flex-col gap-6 w-full max-w-3xl">
-            <UploadZone
-              onFilesSelected={addFiles}
-              disabled={isUploading || !!sessionId}
-            />
-
-            {files.length > 0 && (
-              <FileList files={files} onRemove={removeFile} canRemove={!isUploading && !sessionId} />
+            {files.length === 0 && (
+              <UploadZone
+                onFilesSelected={handleFilesSelected}
+                disabled={isUploading || !!sessionId}
+              />
             )}
 
-            {uploadError && (
+            {files.length > 0 && (
+              <FileList
+                files={files}
+                onRemove={removeFile}
+                canRemove={!isUploading && !isProcessing && !showResults}
+              />
+            )}
+
+            {(uploadError || processError) && (
               <div className="p-4 rounded-lg bg-[#E53935]/10 border border-[#E53935]">
-                <p className="font-mono text-sm text-[#E53935]">{uploadError}</p>
+                <p className="font-mono text-sm text-[#E53935]">{uploadError ?? processError}</p>
               </div>
             )}
 
-            {/* End-to-end status (upload + validation + analysis) */}
-            {(isUploading || sessionId) && !showResults && (
+            {sessionId && !isUploading && !isProcessing && !showResults && (
+              <p className="text-center font-mono text-sm text-[var(--color-text-secondary)]">
+                Upload complete. Click <span className="text-[var(--color-text-primary)] font-semibold">Start Processing</span> to run validation and then view the Validation Results table.
+              </p>
+            )}
+
+            {/* Analysis status (shown only after user starts processing) */}
+            {isProcessing && !showResults && (
               <div className="flex flex-col gap-8 mt-8">
                 <ProcessingStatus
                   status={status}
                   isPolling={isProcessing}
-                  isUploading={isUploading}
-                  uploadProgress={uploadProgress}
-                  filesCount={files.length}
                 />
                 <div className="flex items-center justify-center gap-2 text-[var(--color-text-secondary)] font-mono text-sm">
                   <div className="animate-spin h-4 w-4 border-2 border-[var(--color-accent-orange)] border-t-transparent rounded-full" />
-                  {isUploading
-                    ? 'Uploading your files...'
-                    : status?.status === 'analyzing'
-                      ? 'Analyzing your audio quality...'
-                      : 'Validating and processing your files...'}
+                  {status?.status === 'analyzing'
+                    ? 'Analyzing your audio quality...'
+                    : 'Validating and processing your files...'}
                 </div>
               </div>
             )}
 
             {/* Start Processing Button */}
-            {!sessionId && files.length > 0 && (
+            {files.length > 0 && (
               <div className="flex items-center justify-center gap-4 mt-8">
                 <button
                   onClick={handleStartProcessing}
@@ -177,13 +199,17 @@ export default function UploadPage() {
                     }
                   `}
                 >
-                  {isUploading ? 'Uploading...' : 'Start Processing'}
+                  {isUploading
+                    ? 'Uploading...'
+                    : sessionId
+                      ? `Start Processing (${files.length} Track${files.length > 1 ? 's' : ''})`
+                      : 'Waiting for Upload'}
                 </button>
                 <button
                   onClick={handleReset}
                   className="px-8 py-4 rounded-lg border-2 border-[var(--color-text-secondary)] font-mono text-sm font-medium text-[var(--color-text-primary)] hover:border-[var(--color-text-primary)] transition-colors"
                 >
-                  Cancel Upload
+                  {sessionId ? 'Upload More Files' : 'Cancel Upload'}
                 </button>
               </div>
             )}

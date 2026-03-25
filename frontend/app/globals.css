@@ -12,6 +12,11 @@
   
   --color-accent-orange: #ff6b35;
   --color-accent-teal: #00d4aa;
+  --color-border-default: #3a3a3a;
+  --color-border-strong: #6b6b6b;
+  --color-surface-hover: #333333;
+  --color-table-header-text: #e0e0e0;
+  --color-shadow-soft: rgba(0, 0, 0, 0.15);
   
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -38,6 +43,11 @@
   
   --color-accent-orange: #ff6b35;
   --color-accent-teal: #00d4aa;
+  --color-border-default: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-surface-hover: #f3f4f6;
+  --color-table-header-text: #4b5563;
+  --color-shadow-soft: rgba(17, 24, 39, 0.08);
   
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -65,6 +75,11 @@
   
   --color-accent-orange: #ff6b35;
   --color-accent-teal: #00d4aa;
+  --color-border-default: #3a3a3a;
+  --color-border-strong: #6b6b6b;
+  --color-surface-hover: #333333;
+  --color-table-header-text: #e0e0e0;
+  --color-shadow-soft: rgba(0, 0, 0, 0.15);
   
   --spacing-xs: 4px;
   --spacing-sm: 8px;

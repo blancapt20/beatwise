@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import List, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import librosa
 import numpy as np
@@ -16,6 +17,7 @@ from app.features.processing.schemas import (
 )
 from app.shared.audio.formats import detect_format
 from app.shared.audio.properties import extract_properties
+from app.core.config import settings
 
 SUPPORTED_EXTENSIONS = {".mp3", ".wav", ".flac"}
 SILENCE_FLOOR_DB = -80.0
@@ -229,11 +231,23 @@ def generate_quality_report(session_id: str, session_dir: Path) -> QualityReport
     ]
 
     analyzed_files: List[FileQualityReport] = []
-    for file_path in files:
-        try:
-            analyzed_files.append(analyze_file_quality(file_path))
-        except Exception:
-            continue
+    if files:
+        workers = max(1, min(settings.processing_workers, len(files)))
+        if workers == 1:
+            for file_path in files:
+                try:
+                    analyzed_files.append(analyze_file_quality(file_path))
+                except Exception:
+                    continue
+        else:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = {executor.submit(analyze_file_quality, file_path): file_path for file_path in files}
+                for future in as_completed(futures):
+                    try:
+                        analyzed_files.append(future.result())
+                    except Exception:
+                        continue
+        analyzed_files.sort(key=lambda item: item.file_name)
 
     summary = _build_summary(analyzed_files)
     return QualityReport(

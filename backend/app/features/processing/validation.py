@@ -1,9 +1,11 @@
 from pathlib import Path
 from typing import List
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from app.shared.audio.formats import detect_format, is_format_supported
 from app.shared.audio.properties import extract_properties
 from app.features.processing.schemas import AudioProperties, ValidationResult
+from app.core.config import settings
 
 FAKE_BITRATE_THRESHOLD = 0.20
 FAKE_BITRATE_SEVERE_THRESHOLD = 0.50
@@ -61,14 +63,27 @@ def validate_file(file_path: Path) -> ValidationResult:
 
 def validate_session_files(session_dir: Path) -> List[ValidationResult]:
     """Validate all audio files in a session directory."""
-    results: List[ValidationResult] = []
     if not session_dir.exists():
-        return results
+        return []
 
-    for file_path in sorted(session_dir.iterdir()):
-        if file_path.is_file() and file_path.suffix.lower() in (".mp3", ".wav", ".flac"):
-            results.append(validate_file(file_path))
+    files = [
+        file_path
+        for file_path in sorted(session_dir.iterdir())
+        if file_path.is_file() and file_path.suffix.lower() in (".mp3", ".wav", ".flac")
+    ]
+    if not files:
+        return []
 
+    workers = max(1, min(settings.processing_workers, len(files)))
+    if workers == 1:
+        return [validate_file(file_path) for file_path in files]
+
+    results: List[ValidationResult] = []
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {executor.submit(validate_file, file_path): file_path for file_path in files}
+        for future in as_completed(futures):
+            results.append(future.result())
+    results.sort(key=lambda item: item.file_name)
     return results
 
 

@@ -45,8 +45,7 @@ def update_session_status(session_id: str, status: str, error: Optional[str] = N
     """Update session status."""
     if session_id in _sessions:
         _sessions[session_id].status = status
-        if error:
-            _sessions[session_id].error = error
+        _sessions[session_id].error = error
 
 
 def set_validation_results(session_id: str, results: List[Any]):
@@ -59,6 +58,19 @@ def set_quality_report(session_id: str, report: Dict[str, Any]):
     """Store quality report for a session."""
     if session_id in _sessions:
         _sessions[session_id].quality_report = report
+
+
+def set_files_count(session_id: str, files_count: int):
+    """Update files_count for a session."""
+    if session_id in _sessions:
+        _sessions[session_id].files_count = files_count
+
+
+def clear_processing_outputs(session_id: str):
+    """Clear validation/analysis outputs for a session."""
+    if session_id in _sessions:
+        _sessions[session_id].validation_results = None
+        _sessions[session_id].quality_report = None
 
 
 def delete_session(session_id: str):

@@ -24,7 +24,7 @@ type RenderIssue = { tag: string; label: string; severity: "error" | "warning" }
 const FORMAT_COLORS: Record<string, string> = {
   mp3: "bg-[#FF6F00]",
   wav: "bg-[#00BCD4]",
-  flac: "bg-[#E0E0E0] text-[#1C1C1C]",
+  flac: "bg-[#E5E7EB] text-[#1F2937]",
 };
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -129,7 +129,7 @@ export function ValidationResultsTable({
     className?: string;
   }) => (
     <th
-      className={`px-3 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[#E0E0E0] font-[family-name:var(--font-display)] ${column ? "cursor-pointer select-none hover:text-white" : ""} ${className}`}
+      className={`sticky top-0 z-10 bg-[var(--color-bg-elevated)] px-3 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-[var(--color-table-header-text)] font-[family-name:var(--font-display)] ${column ? "cursor-pointer select-none hover:text-[var(--color-text-primary)]" : ""} ${className}`}
       onClick={column ? () => handleSort(column) : undefined}
     >
       {label}
@@ -147,12 +147,12 @@ export function ValidationResultsTable({
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="overflow-x-auto rounded-xl bg-[var(--color-bg-elevated)] shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
+      <div className="max-h-[720px] overflow-x-auto overflow-y-auto rounded-xl bg-[var(--color-bg-elevated)] shadow-[0_4px_12px_var(--color-shadow-soft)]">
         <table className="w-full min-w-[1200px]">
           <thead>
-            <tr className="border-b border-[#6B6B6B]">
-              <HeaderCell label="" className="w-12" />
-              <HeaderCell label="File Name" column="file_name" className="min-w-[180px]" />
+            <tr className="border-b border-[var(--color-border-strong)]">
+              <HeaderCell label="Status" className="w-12" />
+              <HeaderCell label="File Name" column="file_name" className="w-[220px] max-w-[220px]" />
               <HeaderCell label="Format" column="format" className="w-20" />
               <HeaderCell label="Duration" column="duration" className="w-24 text-right" />
               <HeaderCell label="Sample Rate" className="w-28 text-right" />
@@ -194,7 +194,7 @@ export function ValidationResultsTable({
                 <tr
                   key={result.file_name}
                   onClick={() => onRowClick(result)}
-                  className={`cursor-pointer border-b border-[#3A3A3A] transition-colors hover:bg-[#333333] ${borderClass}`}
+                  className={`cursor-pointer border-b border-[var(--color-border-default)] transition-colors hover:bg-[var(--color-surface-hover)] ${borderClass}`}
                 >
                   {/* Status icon */}
                   <td className="px-3 py-3 text-center">
@@ -208,10 +208,10 @@ export function ValidationResultsTable({
                   </td>
 
                   {/* File name */}
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2">
+                  <td className="px-3 py-3 w-[220px] max-w-[220px]">
+                    <div className="flex items-center gap-2 min-w-0">
                       <svg className="h-4 w-4 flex-shrink-0 text-[#FF6F00]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
-                      <span className="truncate font-mono text-sm font-medium text-white" title={result.file_name}>
+                      <span className="block truncate font-mono text-sm font-medium text-[var(--color-text-primary)]" title={result.file_name}>
                         {result.file_name}
                       </span>
                     </div>
@@ -224,22 +224,22 @@ export function ValidationResultsTable({
                         {result.properties.format}
                       </span>
                     ) : (
-                      <span className="text-[#6B6B6B]">—</span>
+                      <span className="text-[var(--color-text-secondary)]">—</span>
                     )}
                   </td>
 
                   {/* Duration */}
-                  <td className="px-3 py-3 text-right font-mono text-sm text-[#E0E0E0]">
+                  <td className="px-3 py-3 text-right font-mono text-sm text-[var(--color-text-secondary)]">
                     {result.properties ? formatDuration(result.properties.duration) : "—"}
                   </td>
 
                   {/* Sample rate */}
-                  <td className="px-3 py-3 text-right font-mono text-sm text-[#E0E0E0]">
+                  <td className="px-3 py-3 text-right font-mono text-sm text-[var(--color-text-secondary)]">
                     {result.properties ? formatSampleRate(result.properties.sample_rate) : "—"}
                   </td>
 
                   {/* Bitrate declared */}
-                  <td className="px-3 py-3 text-right font-mono text-sm text-[#E0E0E0]">
+                  <td className="px-3 py-3 text-right font-mono text-sm text-[var(--color-text-secondary)]">
                     {result.properties
                       ? result.properties.format === "wav" && result.properties.bitrate_declared <= 0
                         ? "—"
@@ -263,7 +263,7 @@ export function ValidationResultsTable({
                             ? "text-[#FF6F00]"
                             : quality && quality.lufs >= -9
                               ? "text-[#4CAF50]"
-                              : "text-[#E0E0E0]"
+                              : "text-[var(--color-text-secondary)]"
                     }`}
                   >
                     {quality ? `${quality.lufs.toFixed(1)} LUFS` : "—"}
@@ -280,7 +280,7 @@ export function ValidationResultsTable({
                           ? "text-[#FF6F00]"
                           : quality && quality.true_peak_db > -0.5
                             ? "text-[#FFB300]"
-                            : "text-[#E0E0E0]"
+                            : "text-[var(--color-text-secondary)]"
                     }`}
                   >
                     {quality ? `${quality.true_peak_db.toFixed(1)} dBFS` : "—"}
@@ -321,13 +321,13 @@ export function ValidationResultsTable({
                           );
                         })}
                         {hiddenCount > 0 && (
-                          <span className="rounded border border-[#6B6B6B] bg-[#6B6B6B20] px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-[#E0E0E0]">
+                          <span className="rounded border border-[var(--color-border-strong)] bg-[var(--color-surface-hover)] px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-[var(--color-text-secondary)]">
                             +{hiddenCount} more
                           </span>
                         )}
                       </div>
                     ) : (
-                      <span className="text-sm text-[#6B6B6B]">—</span>
+                      <span className="text-sm text-[var(--color-text-secondary)]">—</span>
                     )}
                   </td>
                 </tr>
@@ -338,24 +338,24 @@ export function ValidationResultsTable({
       </div>
 
       {/* Summary bar */}
-      <div className="flex items-center justify-center gap-6 rounded-lg bg-[var(--color-bg-elevated)] px-6 py-3 border border-[#6B6B6B]">
+      <div className="flex items-center justify-center gap-6 rounded-lg bg-[var(--color-bg-elevated)] px-6 py-3 border border-[var(--color-border-strong)]">
         <div className="flex items-center gap-2">
           <svg className="h-4 w-4 text-[#4CAF50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-          <span className="font-mono text-sm font-semibold text-white">{results.length} files validated</span>
+          <span className="font-mono text-sm font-semibold text-[var(--color-text-primary)]">{results.length} files validated</span>
         </div>
-        <div className="h-4 w-px bg-[#6B6B6B]" />
+        <div className="h-4 w-px bg-[var(--color-border-strong)]" />
         <div className="flex items-center gap-2">
           <svg className="h-4 w-4 text-[#FFB300]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
           <span className="font-mono text-sm font-medium text-[#FFB300]">{warnings} warning{warnings !== 1 ? "s" : ""}</span>
         </div>
-        <div className="h-4 w-px bg-[#6B6B6B]" />
+        <div className="h-4 w-px bg-[var(--color-border-strong)]" />
         <div className="flex items-center gap-2">
           <svg className="h-4 w-4 text-[#E53935]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           <span className="font-mono text-sm font-medium text-[#E53935]">{errors} error{errors !== 1 ? "s" : ""}</span>
         </div>
       </div>
 
-      <p className="text-center font-mono text-xs italic text-[#6B6B6B]">
+      <p className="text-center font-mono text-xs italic text-[var(--color-text-secondary)]">
         Click on a row to view file details
       </p>
     </div>

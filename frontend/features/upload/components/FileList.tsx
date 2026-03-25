@@ -4,7 +4,7 @@ import { UploadedFile } from '../hooks/useUpload';
 
 interface FileListProps {
   files: UploadedFile[];
-  onRemove: (fileId: string) => void;
+  onRemove: (fileId: string) => void | Promise<void>;
   canRemove?: boolean;
 }
 
@@ -21,7 +21,7 @@ export function FileList({ files, onRemove, canRemove = true }: FileListProps) {
     const badges = {
       pending: { text: 'Pending', color: 'bg-[#6B6B6B] text-[var(--color-text-secondary)]' },
       uploading: { text: 'Uploading', color: 'bg-[#FFB300] text-[#0D0D0D]' },
-      uploaded: { text: 'Valid', color: 'bg-[#4CAF50] text-[#FFFFFF]' },
+      uploaded: { text: 'Uploaded', color: 'bg-[#4CAF50] text-[#FFFFFF]' },
       error: { text: 'Error', color: 'bg-[#E53935] text-[#FFFFFF]' },
     };
 
@@ -38,7 +38,7 @@ export function FileList({ files, onRemove, canRemove = true }: FileListProps) {
     <div className="flex flex-col gap-3 w-full">
       {/* Header */}
       <h3 className="font-display text-base font-bold text-[var(--color-accent-teal)]">
-        UPLOADED FILES ({files.length})
+        UPLOADED TRACKS (READY TO PROCESS) ({files.length})
       </h3>
 
       {/* Files */}
@@ -64,12 +64,30 @@ export function FileList({ files, onRemove, canRemove = true }: FileListProps) {
 
           {/* File Info */}
           <div className="flex flex-col gap-1 flex-1 min-w-0">
-            <p className="font-mono text-sm font-medium text-[var(--color-text-primary)] truncate">
+            <p className="font-mono text-sm font-medium text-[var(--color-text-primary)] truncate" title={file.file.name}>
               {file.file.name}
             </p>
             <p className="font-mono text-xs text-[var(--color-text-secondary)]">
               {formatFileSize(file.file.size)}
             </p>
+            {(file.status === 'uploading' || file.status === 'uploaded') && (
+              <div className="mt-1">
+                <div className="w-full h-1.5 bg-[#6B6B6B] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[var(--color-accent-orange)] transition-all duration-200"
+                    style={{ width: `${file.progress}%` }}
+                  />
+                </div>
+                <p className="mt-1 font-mono text-[10px] text-[var(--color-text-secondary)]">
+                  {file.status === 'uploaded' ? 'Uploaded (100%)' : `Uploading... ${file.progress}%`}
+                </p>
+              </div>
+            )}
+            {file.status === 'error' && file.error && (
+              <p className="mt-1 font-mono text-[10px] text-[#E53935]">
+                {file.error}
+              </p>
+            )}
           </div>
 
           {/* Status Badge */}

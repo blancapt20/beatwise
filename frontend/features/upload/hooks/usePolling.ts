@@ -8,26 +8,18 @@ export function usePolling(sessionId: string | null, enabled: boolean) {
   const [isPolling, setIsPolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStatus = useCallback(async () => {
-    if (!sessionId) return;
+  const fetchStatus = useCallback(async (): Promise<StatusResponse | null> => {
+    if (!sessionId) return null;
 
     try {
       const response = await apiClient.getStatus(sessionId);
       setStatus(response);
       setError(null);
-
-      if (
-        response.status === 'ready' ||
-        response.status === 'validated' ||
-        response.status === 'analyzed' ||
-        response.status === 'error'
-      ) {
-        setIsPolling(false);
-      }
+      return response;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch status';
       setError(message);
-      setIsPolling(false);
+      throw new Error(message);
     }
   }, [sessionId]);
 
@@ -46,11 +38,35 @@ export function usePolling(sessionId: string | null, enabled: boolean) {
 
     setIsPolling(true);
 
-    fetchStatus();
+    const stopStatuses = new Set(['ready', 'validated', 'analyzed', 'error']);
+    let stopped = false;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
-    const interval = setInterval(fetchStatus, 2000);
+    const tick = async () => {
+      if (stopped) return;
+      try {
+        const response = await fetchStatus();
+        if (response && stopStatuses.has(response.status)) {
+          stopped = true;
+          setIsPolling(false);
+          if (interval) clearInterval(interval);
+        }
+      } catch {
+        stopped = true;
+        setIsPolling(false);
+        if (interval) clearInterval(interval);
+      }
+    };
 
-    return () => clearInterval(interval);
+    void tick();
+    interval = setInterval(() => {
+      void tick();
+    }, 2000);
+
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
   }, [enabled, sessionId, fetchStatus]);
 
   return {

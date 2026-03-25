@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # Temp Storage
     temp_dir: str = "C:/temp/beatwise"
     session_timeout_hours: int = 1
+    processing_workers: int = 4
     
     # CORS
     cors_origins: List[str] = [
