@@ -12,6 +12,7 @@ from app.shared.utils.session import (
 )
 from app.shared.utils.file_manager import save_uploaded_files, validate_file_extension, get_session_dir
 from app.features.processing.quality import generate_quality_report
+from app.features.processing.issue_taxonomy import build_display_issue_payload
 from app.features.processing.validation import validate_session_files
 from app.core.config import settings
 
@@ -68,7 +69,7 @@ class UploadService:
 
     @staticmethod
     def _merge_quality_warnings(validation_results: List[dict], quality_report: dict) -> List[dict]:
-        """Merge quality warnings into validation issues by file name."""
+        """Merge quality warnings and attach backend issue display metadata."""
         merged = deepcopy(validation_results)
         quality_by_file = {
             item["file_name"]: item.get("warnings", [])
@@ -77,7 +78,14 @@ class UploadService:
         for item in merged:
             current = set(item.get("issues", []))
             warnings = quality_by_file.get(item.get("file_name"), [])
-            item["issues"] = sorted(current.union(warnings))
+            combined_issues = sorted(current.union(warnings))
+            item["issues"] = combined_issues
+            display_payload = build_display_issue_payload(
+                issues=combined_issues,
+                properties=item.get("properties"),
+                max_visible=4,
+            )
+            item.update(display_payload)
         return merged
 
 

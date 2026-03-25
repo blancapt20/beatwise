@@ -19,6 +19,7 @@ export default function UploadPage() {
     files,
     sessionId,
     isUploading,
+    uploadProgress,
     uploadError,
     addFiles,
     removeFile,
@@ -57,6 +58,11 @@ export default function UploadPage() {
     is_valid: r.is_valid,
     properties: r.properties,
     issues: r.issues,
+    display_issues: r.display_issues,
+    hidden_issues_count: r.hidden_issues_count,
+    issue_overall_severity: r.issue_overall_severity,
+    issue_primary_tag: r.issue_primary_tag,
+    issue_primary_label: r.issue_primary_label,
   }));
   const qualityByFile = new Map<string, FileQualityReport>(
     (status?.quality_report?.files ?? []).map((item) => [item.file_name, item] as const),
@@ -124,7 +130,7 @@ export default function UploadPage() {
             />
 
             {files.length > 0 && (
-              <FileList files={files} onRemove={removeFile} />
+              <FileList files={files} onRemove={removeFile} canRemove={!isUploading && !sessionId} />
             )}
 
             {uploadError && (
@@ -133,15 +139,23 @@ export default function UploadPage() {
               </div>
             )}
 
-            {/* Processing status (during upload/validation) */}
-            {sessionId && !showResults && (
+            {/* End-to-end status (upload + validation + analysis) */}
+            {(isUploading || sessionId) && !showResults && (
               <div className="flex flex-col gap-8 mt-8">
-                <ProcessingStatus status={status} isPolling={isProcessing} />
+                <ProcessingStatus
+                  status={status}
+                  isPolling={isProcessing}
+                  isUploading={isUploading}
+                  uploadProgress={uploadProgress}
+                  filesCount={files.length}
+                />
                 <div className="flex items-center justify-center gap-2 text-[var(--color-text-secondary)] font-mono text-sm">
                   <div className="animate-spin h-4 w-4 border-2 border-[var(--color-accent-orange)] border-t-transparent rounded-full" />
-                  {status?.status === 'analyzing'
-                    ? 'Analyzing your audio quality...'
-                    : 'Validating your files...'}
+                  {isUploading
+                    ? 'Uploading your files...'
+                    : status?.status === 'analyzing'
+                      ? 'Analyzing your audio quality...'
+                      : 'Validating and processing your files...'}
                 </div>
               </div>
             )}

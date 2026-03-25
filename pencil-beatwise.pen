@@ -4755,21 +4755,34 @@
                   "width": "fill_container",
                   "name": "file1",
                   "y": 31,
+                  "height": "fit_content",
                   "descendants": {
+                    "RVS1v": {
+                      "x": 16,
+                      "y": 21
+                    },
                     "QTKYJ": {
-                      "width": "fill_container"
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 56,
+                      "y": 16
                     },
                     "plUsN": {
                       "content": "summer-vibes.mp3"
                     },
                     "QBVvp": {
-                      "content": "12.4 MB • 320 kbps"
+                      "content": "12.4 MB • 320 kbps",
+                      "y": 20
                     },
                     "EXEXk": {
-                      "x": 697
+                      "x": 697,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "y": 20
                     },
                     "rhTVP": {
-                      "x": 764
+                      "x": 764,
+                      "y": 23
                     }
                   }
                 },
@@ -4780,21 +4793,34 @@
                   "width": "fill_container",
                   "name": "file2",
                   "y": 109,
+                  "height": "fit_content",
                   "descendants": {
+                    "RVS1v": {
+                      "x": 16,
+                      "y": 21
+                    },
                     "QTKYJ": {
-                      "width": "fill_container"
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 56,
+                      "y": 16
                     },
                     "plUsN": {
                       "content": "night-ride.wav"
                     },
                     "QBVvp": {
-                      "content": "45.2 MB • 1411 kbps"
+                      "content": "45.2 MB • 1411 kbps",
+                      "y": 20
                     },
                     "EXEXk": {
-                      "x": 697
+                      "x": 697,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "y": 20
                     },
                     "rhTVP": {
-                      "x": 764
+                      "x": 764,
+                      "y": 23
                     }
                   }
                 },
@@ -4805,21 +4831,34 @@
                   "width": "fill_container",
                   "name": "file3",
                   "y": 187,
+                  "height": "fit_content",
                   "descendants": {
+                    "RVS1v": {
+                      "x": 16,
+                      "y": 21
+                    },
                     "QTKYJ": {
-                      "width": "fill_container"
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 56,
+                      "y": 16
                     },
                     "plUsN": {
                       "content": "deep-house-mix.flac"
                     },
                     "QBVvp": {
-                      "content": "32.8 MB • 896 kbps"
+                      "content": "32.8 MB • 896 kbps",
+                      "y": 20
                     },
                     "EXEXk": {
-                      "x": 697
+                      "x": 697,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "y": 20
                     },
                     "rhTVP": {
-                      "x": 764
+                      "x": 764,
+                      "y": 23
                     }
                   }
                 }
@@ -4841,9 +4880,11 @@
               "ref": "ceNJe",
               "width": "fill_container",
               "name": "progressBar",
+              "height": "fit_content",
               "descendants": {
                 "wa4dC": {
-                  "width": "fill_container"
+                  "width": "fill_container",
+                  "height": "fit_content"
                 },
                 "KRYyv": {
                   "content": "Processing 2 of 3 files..."
@@ -4852,7 +4893,8 @@
                   "x": 773
                 },
                 "FoL23": {
-                  "width": "fill_container"
+                  "width": "fill_container",
+                  "y": 24
                 }
               }
             },
@@ -4870,9 +4912,13 @@
                   "ref": "APCMk",
                   "name": "processBtn",
                   "x": 246,
+                  "width": "fit_content",
+                  "height": "fit_content",
                   "descendants": {
                     "hPfSa": {
-                      "content": "Start Processing"
+                      "content": "Start Processing",
+                      "x": 24,
+                      "y": 12
                     }
                   }
                 },
@@ -4882,9 +4928,13 @@
                   "ref": "rYTTP",
                   "name": "cancelBtn",
                   "x": 415,
+                  "width": "fit_content",
+                  "height": "fit_content",
                   "descendants": {
                     "XwOtJ": {
-                      "content": "Cancel Upload"
+                      "content": "Cancel Upload",
+                      "x": 24,
+                      "y": 12
                     }
                   }
                 }
@@ -5962,12 +6012,18 @@
               "name": "dlBtn",
               "x": 284,
               "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
               "descendants": {
                 "7FvAr": {
-                  "iconFontName": "download"
+                  "iconFontName": "download",
+                  "x": 24,
+                  "y": 12
                 },
                 "kf7fo": {
-                  "content": "Download All"
+                  "content": "Download All",
+                  "x": 48,
+                  "y": 12
                 }
               }
             },
@@ -5977,9 +6033,13 @@
               "ref": "rYTTP",
               "name": "uploadMore",
               "x": 455,
+              "width": "fit_content",
+              "height": "fit_content",
               "descendants": {
                 "XwOtJ": {
-                  "content": "Upload More Files"
+                  "content": "Upload More Files",
+                  "x": 24,
+                  "y": 12
                 }
               }
             }
@@ -6505,15 +6565,30 @@
               "name": "closeBtn",
               "x": 452,
               "y": 24,
+              "width": "fit_content",
+              "height": "fit_content",
               "descendants": {
                 "XwOtJ": {
-                  "content": "Close"
+                  "content": "Close",
+                  "x": 24,
+                  "y": 12
                 }
               }
             }
           ]
         }
       ]
+    },
+    {
+      "type": "text",
+      "id": "3TCe5",
+      "x": 0,
+      "y": 0,
+      "fill": "#000000",
+      "content": "678774",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "normal"
     }
   ]
 }

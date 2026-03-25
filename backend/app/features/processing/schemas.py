@@ -12,11 +12,26 @@ class AudioProperties(BaseModel):
     format: str
 
 
+class IssueDisplayItem(BaseModel):
+    tag: str
+    label: str
+    category: str
+    severity: str
+    priority: int
+    worry: str
+    explanation: str
+
+
 class ValidationResult(BaseModel):
     file_name: str
     is_valid: bool
     properties: Optional[AudioProperties] = None
     issues: List[str] = []
+    display_issues: List[IssueDisplayItem] = []
+    hidden_issues_count: int = 0
+    issue_overall_severity: str = "none"
+    issue_primary_tag: Optional[str] = None
+    issue_primary_label: Optional[str] = None
 
 
 class QualityAnalysis(BaseModel):

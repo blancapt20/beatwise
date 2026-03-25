@@ -13,20 +13,6 @@ interface ValidationDetailDialogProps {
   onClose: () => void;
 }
 
-const ISSUE_EXPLANATIONS: Record<string, string> = {
-  fake_bitrate: "Declared bitrate does not match the real bitrate estimated from file size and duration. This file was likely transcoded from a lower quality source.",
-  corrupted: "The audio file could not be read or decoded. It may be damaged or truncated.",
-  unsupported_format: "The file format is not supported. Only MP3, WAV, and FLAC are accepted.",
-  file_not_found: "The file was not found on disk.",
-  too_quiet: "The file loudness is below -18 LUFS and may sound weak in a set.",
-  too_loud: "The file loudness is above -8 LUFS and may distort in playback.",
-  minor_clipping: "Slight clipping detected (0.01% to 0.1% clipped samples).",
-  moderate_clipping: "Clipping is clearly visible (0.1% to 0.5% clipped samples).",
-  major_clipping: "Heavy clipping detected (>0.5% clipped samples). Source quality may be compromised.",
-  low_headroom: "Low headroom (-1.0 to -0.3 dBTP). May clip on large systems.",
-  very_hot_signal: "Very hot signal (-0.3 to 0.0 dBTP). High risk of distortion.",
-  tp_overs: "Clipping detected (>0.0 dBTP true peak).",
-};
 
 function formatDurationLong(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -100,9 +86,16 @@ export function ValidationDetailDialog({
   if (!result) return null;
 
   const props = result.properties;
-  const isFake =
-    props && props.bitrate_declared > 0 && props.bitrate_real > 0 &&
-    Math.abs(props.bitrate_declared - props.bitrate_real) / props.bitrate_declared > 0.2;
+  const isFake = result.issues.includes("fake_bitrate") || result.issues.includes("fake_bitrate_severe");
+  const displayIssues =
+    result.display_issues && result.display_issues.length > 0
+      ? result.display_issues.slice(0, 4)
+      : result.issues.slice(0, 4).map((tag) => ({
+          tag,
+          label: tag.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+          severity: "warning" as const,
+          explanation: "Additional quality signal detected.",
+        }));
 
   const propertyRows = props
     ? [
@@ -110,7 +103,10 @@ export function ValidationDetailDialog({
         { label: "Duration", value: formatDurationLong(props.duration) },
         { label: "Sample Rate", value: formatSampleRate(props.sample_rate) },
         { label: "Channels", value: `${props.channels} (${props.channels === 1 ? "Mono" : "Stereo"})` },
-        { label: "Bitrate (Declared)", value: `${props.bitrate_declared} kbps` },
+        {
+          label: "Bitrate (Declared)",
+          value: props.format === "wav" && props.bitrate_declared <= 0 ? "—" : `${props.bitrate_declared} kbps`,
+        },
         { label: "Bitrate (Real)", value: `${props.bitrate_real} kbps`, highlight: isFake },
       ]
     : [];
@@ -123,6 +119,16 @@ export function ValidationDetailDialog({
         { label: "Clipping", value: `${qualityReport.quality.clipping_percentage.toFixed(4)}%` },
       ]
     : [];
+  const hasAdvisory = result.issues.length === 0 && (qualityReport?.recommendations.length ?? 0) > 0;
+  const hiddenIssueCount = result.hidden_issues_count ?? Math.max(0, result.issues.length - displayIssues.length);
+  const hasErrorIssue =
+    result.issue_overall_severity === "error"
+    || (result.issue_overall_severity == null && result.issues.length > 0 && displayIssues.some((i) => i.severity === "error"));
+  const advisoryText = hasAdvisory
+    ? qualityReport!.recommendations.includes("increase_headroom")
+      ? "File is valid for DJ use. Master is hot but still accepted; keep an eye on channel gain/headroom in your set."
+      : "File is valid and processed successfully. Minor advisory recommendations are available for safer playback."
+    : null;
 
   return (
     <div
@@ -180,29 +186,55 @@ export function ValidationDetailDialog({
         )}
 
         {/* Issues */}
-        {result.issues.length > 0 && (
+        {displayIssues.length > 0 && (
           <div className="flex flex-col gap-3 px-6 pb-5">
-            <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#E53935]">
+            <h3 className={`font-[family-name:var(--font-display)] text-sm font-bold ${hasErrorIssue ? "text-[#E53935]" : "text-[#FFB300]"}`}>
               ISSUES DETECTED
             </h3>
-            {result.issues.map((issue) => (
+            {displayIssues.map((issue) => {
+              const isError = issue.severity === "error";
+              const cardBorder = isError ? "border-[#E53935] bg-[#E5393510]" : "border-[#FFB300] bg-[#FFB30010]";
+              const iconColor = isError ? "text-[#E53935]" : "text-[#FFB300]";
+              const titleColor = isError ? "text-[#E53935]" : "text-[#FFB300]";
+              return (
               <div
-                key={issue}
-                className="flex items-start gap-3 rounded-lg border border-[#E53935] bg-[#E5393510] p-4"
+                key={issue.tag}
+                className={`flex items-start gap-3 rounded-lg border p-4 ${cardBorder}`}
               >
-                <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#FFB300]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={`mt-0.5 h-5 w-5 flex-shrink-0 ${iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
                 <div className="flex flex-col gap-1">
-                  <span className="font-mono text-sm font-bold text-[#FFB300]">
-                    {issue.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                  <span className={`font-mono text-sm font-bold ${titleColor}`}>
+                    {issue.label}
                   </span>
                   <p className="font-mono text-xs leading-relaxed text-[#E0E0E0]">
-                    {ISSUE_EXPLANATIONS[issue] ?? "An unknown issue was detected."}
+                    {issue.explanation}
                   </p>
                 </div>
               </div>
-            ))}
+              );
+            })}
+            {hiddenIssueCount > 0 && (
+              <p className="font-mono text-xs text-[#6B6B6B]">
+                +{hiddenIssueCount} additional supporting signal{hiddenIssueCount !== 1 ? "s" : ""} hidden to keep this view focused.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Advisory for valid but hot masters */}
+        {hasAdvisory && advisoryText && (
+          <div className="flex flex-col gap-3 px-6 pb-5">
+            <h3 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#4CAF50]">
+              STATUS
+            </h3>
+            <div className="flex items-start gap-3 rounded-lg border border-[#4CAF50] bg-[#4CAF5014] p-4">
+              <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#4CAF50]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="font-mono text-xs leading-relaxed text-[#E0E0E0]">{advisoryText}</p>
+            </div>
           </div>
         )}
 

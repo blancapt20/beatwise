@@ -93,23 +93,33 @@ class FileQualityReport(BaseModel):
 
 ## Quality Thresholds
 
-### RMS Levels
-- **Optimal**: -14 to -10 LUFS
-- **Acceptable**: -18 to -8 LUFS
-- **Too Quiet**: < -18 LUFS → Warning
-- **Too Loud**: > -8 LUFS → Warning
+### Loudness (DJ-Oriented LUFS)
+- **Method**: Integrated LUFS (ITU-R BS.1770) via `pyloudnorm`
+- **Optimal**: -9 to -5 LUFS
+- **Acceptable**: -12 to -5 LUFS
+- **Too Quiet**: < -12 LUFS → Warning (`too_quiet`)
+- **Too Loud**: > -5 LUFS → Soft warning (`too_loud`)
 
 ### Clipping
-- **No Clipping**: 0% to 0.01% clipped samples
-- **Minor**: >0.01% to 0.1% clipped → Warning (`minor_clipping`)
-- **Moderate**: >0.1% to 0.5% clipped → Warning (`moderate_clipping`)
-- **Major**: >0.5% clipped → Error (`major_clipping`)
+- **No Issue**: 0% to 0.2% clipped samples (common in modern masters)
+- **Minor**: >0.2% to 0.6% clipped → Warning (`minor_clipping`)
+- **Moderate**: >0.6% to 1.5% clipped → Warning (`moderate_clipping`)
+- **Major**: >1.5% clipped → Error (`major_clipping`)
+- **Consecutive Clip Runs**: long clipped sequences (80+ samples) → Error (`long_clipping_runs`)
 
 ### True Peak
-- **Safe**: <= -1.0 dBTP
-- **Borderline**: >-1.0 to -0.3 dBTP → Warning (`low_headroom`)
+- **Club Safe**: <= -0.5 dBTP
+- **Borderline**: >-0.5 to -0.3 dBTP → Warning (`low_headroom`)
 - **Very Hot**: >-0.3 to 0.0 dBTP → Warning (`very_hot_signal`)
-- **Clipping**: >0.0 dBTP → Error (`tp_overs`)
+- **Soft Overs**: >0.0 to +2.5 dBTP → Advisory recommendation (`tp_soft_overs`)
+- **Hard Overs**: >+2.5 dBTP → Error (`tp_hard_overs`)
+- **Implementation Note**: true peak estimated with 4x oversampling (not raw sample peak).
+
+### DJ-Specific Quality Warnings
+- `low_bitrate`: MP3 real bitrate <= 192 kbps
+- `possible_upscale`: declared high bitrate but spectral cutoff suggests low-source transcode
+- `low_frequency_content`: weak low-end ratio (thin mix/source)
+- `overcompressed_master`: very loud + low crest behavior / aggressive clipping pattern
 
 ---
 
@@ -153,8 +163,8 @@ class FileQualityReport(BaseModel):
 ### Test Cases
 1. Clean audio → no warnings
 2. Clipped audio (>0 dBFS) → clipping warning
-3. Very quiet audio (<-18 LUFS) → too_quiet warning
-4. Very loud audio (>-8 LUFS) → too_loud warning
+3. Very quiet audio (<-12 LUFS) → too_quiet warning
+4. Very loud audio (>-5 LUFS) → too_loud warning
 5. Mixed quality files → summary statistics correct
 
 ---
@@ -172,8 +182,9 @@ class FileQualityReport(BaseModel):
 ## Dependencies
 
 ```txt
-librosa==0.10.2                # Audio analysis
+librosa==0.10.2                # Audio analysis + oversampling
 numpy==1.26.4                  # Required by librosa
+pyloudnorm==0.1.1              # ITU-R BS.1770 integrated LUFS
 soundfile==0.12.1              # Audio file I/O
 ```
 
@@ -201,8 +212,8 @@ Sprint 2 builds the `ValidationDetailDialog` with a placeholder section for the 
 
 ## Notes
 
-- RMS vs LUFS: LUFS is perceptual loudness, RMS is mathematical
-- Use LUFS for recommendations, RMS for technical analysis
+- LUFS is measured with BS.1770 integrated loudness (not RMS proxy)
+- RMS is still useful as an internal technical metric
 - Clipping detection: check both true peak and sample clipping
 - Don't fix issues yet - just report them
 - Frequency spectrum visualization carries over from Sprint 2 placeholder

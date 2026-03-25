@@ -124,8 +124,9 @@ class ValidationResult(BaseModel):
 2. Corrupted MP3 → is_valid: false
 3. Non-audio file (e.g., .txt) → is_valid: false
 4. Fake bitrate (320kbps declared, 128kbps real) → issues: ["fake_bitrate"]
-5. WAV file → correctly identified
-6. FLAC file → correctly identified
+5. Low bitrate MP3 (<=192 kbps real) → issues include: ["low_bitrate"]
+6. WAV file → correctly identified
+7. FLAC file → correctly identified
 
 ---
 

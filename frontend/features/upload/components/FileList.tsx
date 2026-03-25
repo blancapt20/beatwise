@@ -5,9 +5,10 @@ import { UploadedFile } from '../hooks/useUpload';
 interface FileListProps {
   files: UploadedFile[];
   onRemove: (fileId: string) => void;
+  canRemove?: boolean;
 }
 
-export function FileList({ files, onRemove }: FileListProps) {
+export function FileList({ files, onRemove, canRemove = true }: FileListProps) {
   if (files.length === 0) return null;
 
   const formatFileSize = (bytes: number): string => {
@@ -77,7 +78,8 @@ export function FileList({ files, onRemove }: FileListProps) {
           {/* Delete Button */}
           <button
             onClick={() => onRemove(file.id)}
-            className="p-1 hover:bg-[var(--color-bg-secondary)] rounded transition-colors"
+            disabled={!canRemove}
+            className="p-1 hover:bg-[var(--color-bg-secondary)] rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Remove file"
           >
             <svg

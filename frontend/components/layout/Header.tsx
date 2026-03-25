@@ -44,12 +44,12 @@ export function Header() {
 
       {/* Navigation */}
       <nav className="flex items-center gap-8">
-        <a href="#features" className="font-mono text-[13px] text-[var(--color-text-primary)] hover:text-[var(--color-accent-orange)] transition-colors">
+        <Link href="/#features" className="font-mono text-[13px] text-[var(--color-text-primary)] hover:text-[var(--color-accent-orange)] transition-colors">
           Features
-        </a>
-        <a href="#how-it-works" className="font-mono text-[13px] text-[var(--color-text-primary)] hover:text-[var(--color-accent-orange)] transition-colors">
+        </Link>
+        <Link href="/#how-it-works" className="font-mono text-[13px] text-[var(--color-text-primary)] hover:text-[var(--color-accent-orange)] transition-colors">
           How It Works
-        </a>
+        </Link>
         
         {/* Theme Toggle */}
         <button
@@ -76,10 +76,11 @@ export function Header() {
           )}
         </button>
 
-        <Link href="/upload">
-          <button className="flex h-10 items-center justify-center rounded-[16px] bg-[var(--color-accent-orange)] px-5 font-mono text-[12px] font-semibold text-[var(--color-text-on-accent)] hover:opacity-90 transition-opacity">
-            Get Started
-          </button>
+        <Link
+          href="/upload"
+          className="flex h-10 items-center justify-center rounded-[16px] bg-[var(--color-accent-orange)] px-5 font-mono text-[12px] font-semibold text-[var(--color-text-on-accent)] hover:opacity-90 transition-opacity"
+        >
+          Get Started
         </Link>
       </nav>
     </header>

@@ -9,6 +9,7 @@ export { useUpload } from './hooks/useUpload';
 export { usePolling } from './hooks/usePolling';
 export type {
   AudioProperties,
+  IssueDisplayItem,
   FileQualityReport,
   QualityAnalysis,
   QualityReport,

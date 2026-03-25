@@ -19,20 +19,13 @@ type SortKey =
   | "true_peak_db"
   | "clipping_percentage";
 type SortDir = "asc" | "desc";
+type RenderIssue = { tag: string; label: string; severity: "error" | "warning" };
 
 const FORMAT_COLORS: Record<string, string> = {
   mp3: "bg-[#FF6F00]",
   wav: "bg-[#00BCD4]",
   flac: "bg-[#E0E0E0] text-[#1C1C1C]",
 };
-const ERROR_ISSUES = new Set([
-  "corrupted",
-  "unsupported_format",
-  "file_not_found",
-  "major_clipping",
-  "tp_overs",
-]);
-
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
@@ -41,11 +34,6 @@ function formatDuration(seconds: number): string {
 
 function formatSampleRate(hz: number): string {
   return `${(hz / 1000).toFixed(1)} kHz`;
-}
-
-function isFakeBitrate(declared: number, real: number): boolean {
-  if (declared <= 0 || real <= 0) return false;
-  return Math.abs(declared - real) / declared > 0.2;
 }
 
 export function ValidationResultsTable({
@@ -119,14 +107,12 @@ export function ValidationResultsTable({
     return copy;
   }, [results, sortKey, sortDir, qualityByFile]);
 
-  const getIssueSeverity = (issues: string[]): "error" | "warning" | "none" => {
-    if (issues.some((issue) => ERROR_ISSUES.has(issue))) return "error";
-    if (issues.length > 0) return "warning";
-    return "none";
+  const getResultSeverity = (result: ValidationResult): "error" | "warning" | "none" => {
+    return result.issue_overall_severity ?? (result.issues.length > 0 ? "warning" : "none");
   };
 
-  const warnings = results.filter((r) => r.is_valid && getIssueSeverity(r.issues) === "warning").length;
-  const errors = results.filter((r) => !r.is_valid || getIssueSeverity(r.issues) === "error").length;
+  const warnings = results.filter((r) => r.is_valid && getResultSeverity(r) === "warning").length;
+  const errors = results.filter((r) => !r.is_valid || getResultSeverity(r) === "error").length;
 
   const SortArrow = ({ column }: { column: SortKey }) => {
     if (sortKey !== column) return null;
@@ -180,12 +166,24 @@ export function ValidationResultsTable({
           </thead>
           <tbody>
             {sorted.map((result) => {
-              const issueSeverity = getIssueSeverity(result.issues);
+              const issueSeverity = getResultSeverity(result);
+              const displayIssues: RenderIssue[] =
+                result.display_issues && result.display_issues.length > 0
+                  ? result.display_issues.slice(0, 2).map((item) => ({
+                      tag: item.tag,
+                      label: item.label,
+                      severity: item.severity,
+                    }))
+                  : result.issues.slice(0, 2).map((tag) => ({
+                      tag,
+                      label: tag.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+                      severity: "warning" as const,
+                    }));
+              const hiddenCount =
+                result.hidden_issues_count ?? Math.max(0, result.issues.length - displayIssues.length);
               const hasWarning = result.is_valid && issueSeverity === "warning";
               const hasError = !result.is_valid || issueSeverity === "error";
-              const fake =
-                result.properties &&
-                isFakeBitrate(result.properties.bitrate_declared, result.properties.bitrate_real);
+              const fake = result.issues.includes("fake_bitrate") || result.issues.includes("fake_bitrate_severe");
               const quality = qualityByFile.get(result.file_name);
 
               let borderClass = "border-l-3 border-l-transparent";
@@ -242,7 +240,11 @@ export function ValidationResultsTable({
 
                   {/* Bitrate declared */}
                   <td className="px-3 py-3 text-right font-mono text-sm text-[#E0E0E0]">
-                    {result.properties ? `${result.properties.bitrate_declared} kbps` : "—"}
+                    {result.properties
+                      ? result.properties.format === "wav" && result.properties.bitrate_declared <= 0
+                        ? "—"
+                        : `${result.properties.bitrate_declared} kbps`
+                      : "—"}
                   </td>
 
                   {/* Bitrate real */}
@@ -251,18 +253,32 @@ export function ValidationResultsTable({
                   </td>
 
                   {/* LUFS */}
-                  <td className="px-3 py-3 text-right font-mono text-sm text-[#E0E0E0]">
+                  <td
+                    className={`px-3 py-3 text-right font-mono text-sm ${
+                      quality && quality.lufs < -16
+                        ? "font-semibold text-[#FF6F00]"
+                        : quality && quality.lufs < -12
+                          ? "text-[#FFB300]"
+                          : quality && quality.lufs > -5
+                            ? "text-[#FF6F00]"
+                            : quality && quality.lufs >= -9
+                              ? "text-[#4CAF50]"
+                              : "text-[#E0E0E0]"
+                    }`}
+                  >
                     {quality ? `${quality.lufs.toFixed(1)} LUFS` : "—"}
                   </td>
 
                   {/* True Peak */}
                   <td
                     className={`px-3 py-3 text-right font-mono text-sm ${
-                      quality && quality.true_peak_db > 0
+                      quality && quality.true_peak_db > 2.5
                         ? "font-semibold text-[#E53935]"
-                        : quality && quality.true_peak_db > -0.3
+                        : quality && quality.true_peak_db > 0.0
+                          ? "font-semibold text-[#FF6F00]"
+                          : quality && quality.true_peak_db > -0.3
                           ? "text-[#FF6F00]"
-                          : quality && quality.true_peak_db > -1
+                          : quality && quality.true_peak_db > -0.5
                             ? "text-[#FFB300]"
                             : "text-[#E0E0E0]"
                     }`}
@@ -273,11 +289,11 @@ export function ValidationResultsTable({
                   {/* Clipping percentage */}
                   <td
                     className={`px-3 py-3 text-right font-mono text-sm ${
-                      quality && quality.clipping_percentage > 0.5
+                      quality && quality.clipping_percentage > 1.5
                         ? "font-semibold text-[#E53935]"
-                        : quality && quality.clipping_percentage > 0.1
+                        : quality && quality.clipping_percentage > 0.6
                           ? "text-[#FF6F00]"
-                          : quality && quality.clipping_percentage > 0.01
+                          : quality && quality.clipping_percentage > 0.2
                             ? "text-[#FFB300]"
                           : "text-[#4CAF50]"
                     }`}
@@ -289,21 +305,26 @@ export function ValidationResultsTable({
                   <td className="px-3 py-3">
                     {result.issues.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {result.issues.map((issue) => {
-                          const isError = ERROR_ISSUES.has(issue);
+                        {displayIssues.map((issue) => {
+                          const isError = issue.severity === "error";
                           return (
                             <span
-                              key={issue}
+                              key={issue.tag}
                               className={`rounded border px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
                                 isError
                                   ? "border-[#E53935] bg-[#E5393520] text-[#E53935]"
                                   : "border-[#FFB300] bg-[#FFB30020] text-[#FFB300]"
                               }`}
                             >
-                              {issue.replace(/_/g, " ")}
+                              {issue.label}
                             </span>
                           );
                         })}
+                        {hiddenCount > 0 && (
+                          <span className="rounded border border-[#6B6B6B] bg-[#6B6B6B20] px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-[#E0E0E0]">
+                            +{hiddenCount} more
+                          </span>
+                        )}
                       </div>
                     ) : (
                       <span className="text-sm text-[#6B6B6B]">—</span>
@@ -330,7 +351,7 @@ export function ValidationResultsTable({
         <div className="h-4 w-px bg-[#6B6B6B]" />
         <div className="flex items-center gap-2">
           <svg className="h-4 w-4 text-[#E53935]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-          <span className="font-mono text-sm font-medium text-[#4CAF50]">{errors} error{errors !== 1 ? "s" : ""}</span>
+          <span className="font-mono text-sm font-medium text-[#E53935]">{errors} error{errors !== 1 ? "s" : ""}</span>
         </div>
       </div>
 

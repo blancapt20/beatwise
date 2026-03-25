@@ -14,6 +14,7 @@ export function useUpload() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const addFiles = useCallback((newFiles: File[]) => {
@@ -33,6 +34,7 @@ export function useUpload() {
     if (files.length === 0) return;
 
     setIsUploading(true);
+    setUploadProgress(0);
     setUploadError(null);
 
     try {
@@ -41,7 +43,8 @@ export function useUpload() {
 
       // Upload to backend
       const response: UploadResponse = await apiClient.uploadFiles(
-        files.map(f => f.file)
+        files.map(f => f.file),
+        { onUploadProgress: setUploadProgress }
       );
 
       // Mark all as uploaded
@@ -63,6 +66,7 @@ export function useUpload() {
     setFiles([]);
     setSessionId(null);
     setIsUploading(false);
+    setUploadProgress(0);
     setUploadError(null);
   }, []);
 
@@ -70,6 +74,7 @@ export function useUpload() {
     files,
     sessionId,
     isUploading,
+    uploadProgress,
     uploadError,
     addFiles,
     removeFile,

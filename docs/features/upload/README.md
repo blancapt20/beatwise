@@ -32,9 +32,14 @@ features/upload/
 - Remove file action
 
 ### ProcessingStatus
-- Displays current processing state
-- Progress bar (0%, 65%, 100%)
-- Status messages
+- Displays a single end-to-end progress state (upload + backend processing)
+- Progress scale:
+  - 0-30%: file upload (browser -> backend)
+  - 50%: validating
+  - 70%: processing
+  - 80%: analyzing
+  - 100%: analyzed/validated/ready
+- Status messages for each phase
 
 ### DownloadButton
 - Triggers file download
@@ -47,6 +52,7 @@ Manages upload state:
 - `files`: Array of uploaded files
 - `sessionId`: Current session ID
 - `isUploading`: Upload in progress
+- `uploadProgress`: Network upload progress (0-100)
 - `uploadError`: Error message
 - `addFiles()`: Add files to queue
 - `removeFile()`: Remove file from queue
@@ -70,10 +76,12 @@ Polls backend for status:
 ### Flow
 1. User selects files → added to local state
 2. User clicks "Start Processing" → `POST /api/upload`
-3. Backend returns `session_id`
-4. Frontend polls `GET /api/status/{session_id}` every 2 seconds
-5. When status is "ready" → show download button
-6. User clicks "Download" → opens `GET /api/download/{session_id}`
+3. During upload, frontend shows phase 1 progress (0-30%) from upload bytes
+4. Backend returns `session_id`
+5. Frontend polls `GET /api/status/{session_id}` every 2 seconds
+6. Progress continues with backend phases until 100%
+7. When status is "ready"/"validated"/"analyzed" → show validation results and download action
+8. User clicks "Download" → opens `GET /api/download/{session_id}`
 
 ## Environment Variables
 

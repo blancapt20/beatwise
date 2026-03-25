@@ -45,9 +45,24 @@ export interface SpectrumData {
   magnitudes_db: number[];
 }
 
+export interface IssueDisplayItem {
+  tag: string;
+  label: string;
+  category: string;
+  severity: "error" | "warning";
+  priority: number;
+  worry: "critical" | "high" | "medium" | "low";
+  explanation: string;
+}
+
 export interface ValidationResult {
   file_name: string;
   is_valid: boolean;
   properties: AudioProperties | null;
   issues: string[];
+  display_issues?: IssueDisplayItem[];
+  hidden_issues_count?: number;
+  issue_overall_severity?: "error" | "warning" | "none";
+  issue_primary_tag?: string | null;
+  issue_primary_label?: string | null;
 }
